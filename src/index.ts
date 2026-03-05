@@ -12,6 +12,8 @@ import { projectRecentActivity } from './tools/recentActivity.js';
 import { projectContext } from './tools/projectContext.js';
 import { projectCaptureNote } from './tools/captureNote.js';
 import { recordProgress } from './tools/recordProgress.js';
+import { estimateMilestoneProgressTool } from './tools/estimateMilestoneProgress.js';
+import { suggestNextActionsTool } from './tools/suggestNextActions.js';
 
 const server = new Server(
   {
@@ -29,7 +31,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: 'project_init',
+        name: 'brain_init',
         description: 'Initialize project brain with manifest information',
         inputSchema: {
           type: 'object',
@@ -54,7 +56,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'project_recent_activity',
+        name: 'brain_recent_activity',
         description: 'Get recent git activity with commits and hot paths',
         inputSchema: {
           type: 'object',
@@ -75,7 +77,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'project_context',
+        name: 'brain_context',
         description: 'Generate AI-ready project context',
         inputSchema: {
           type: 'object',
@@ -101,7 +103,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'project_capture_note',
+        name: 'brain_capture_note',
         description: 'Capture a note about the project',
         inputSchema: {
           type: 'object',
@@ -124,7 +126,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'record_progress',
+        name: 'brain_record_progress',
         description: 'Record development progress, decisions, or milestone signals',
         inputSchema: {
           type: 'object',
@@ -164,6 +166,52 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['type'],
         },
       },
+      {
+        name: 'brain_estimate_progress',
+        description: 'Estimate progress percentage for milestones with explainable reasoning',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            milestone_name: {
+              type: 'string',
+              description: 'Optional: estimate specific milestone only',
+            },
+            repo_path: {
+              type: 'string',
+              description: 'Optional repository path',
+            },
+            recent_commits: {
+              type: 'number',
+              description: 'Number of commits to analyze (default: 50)',
+            },
+          },
+        },
+      },
+      {
+        name: 'brain_suggest_actions',
+        description: 'Generate prioritized next action recommendations based on project state',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            limit: {
+              type: 'number',
+              description: 'Number of actions to return (default: 5)',
+            },
+            filter_by_milestone: {
+              type: 'string',
+              description: 'Optional: filter by milestone name',
+            },
+            repo_path: {
+              type: 'string',
+              description: 'Optional repository path',
+            },
+            recent_commits: {
+              type: 'number',
+              description: 'Number of commits to analyze (default: 50)',
+            },
+          },
+        },
+      },
     ],
   };
 });
@@ -173,7 +221,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
 
     switch (name) {
-      case 'project_init': {
+      case 'brain_init': {
         const result = await projectInit(args as any);
         return {
           content: [
@@ -185,7 +233,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'project_recent_activity': {
+      case 'brain_recent_activity': {
         const result = await projectRecentActivity(args as any);
         return {
           content: [
@@ -197,7 +245,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'project_context': {
+      case 'brain_context': {
         const result = await projectContext(args as any);
         return {
           content: [
@@ -208,7 +256,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           ],
         };
       }
-      case 'record_progress': {
+      case 'brain_record_progress': {
         const result = await recordProgress(args as any);
         return {
           content: [
@@ -220,8 +268,32 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'project_capture_note': {
+      case 'brain_capture_note': {
         const result = await projectCaptureNote(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'brain_estimate_progress': {
+        const result = await estimateMilestoneProgressTool(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'brain_suggest_actions': {
+        const result = await suggestNextActionsTool(args as any);
         return {
           content: [
             {

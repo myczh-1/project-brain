@@ -5,6 +5,9 @@ import { FocusInference, MilestoneSignal } from './inferFocus.js';
 import { ProgressEntry } from '../storage/progress.js';
 import { Decision } from '../storage/decisions.js';
 import { Milestone } from '../storage/milestones.js';
+import { ProgressEstimation } from './estimateProgress.js';
+import { NextAction } from '../storage/nextActions.js';
+import { detectLocale, getTemplates } from './i18n.js';
 
 export interface ContextData {
   manifest: Manifest | null;
@@ -15,82 +18,112 @@ export interface ContextData {
   progress?: ProgressEntry[];
   decisions?: Decision[];
   milestones?: Milestone[];
+  milestoneProgress?: ProgressEstimation[];
+  nextActions?: NextAction[];
 }
 
 export function generateContextText(data: ContextData): string {
+  // Detect locale
+  const contentSample = [
+    data.manifest?.one_liner || '',
+    ...(data.manifest?.goals || []),
+    ...(data.progress?.map(p => p.summary) || [])
+  ].join(' ');
+  
+  const locale = detectLocale(data.manifest, contentSample);
+  const t = getTemplates(locale);
+  
   const sections: string[] = [];
-
-  sections.push('# Project Context\n');
-
+  sections.push(`${t.projectContext}\n`);
   if (data.manifest) {
-    sections.push('## One-liner');
+    sections.push(t.oneLiner);
     sections.push(data.manifest.one_liner || 'Not specified');
     sections.push('');
-
     if (data.manifest.goals.length > 0) {
-      sections.push('## Goals');
+      sections.push(t.goals);
       data.manifest.goals.forEach(goal => sections.push(`- ${goal}`));
       sections.push('');
     }
-
     if (data.manifest.constraints.length > 0 || data.manifest.tech_stack.length > 0) {
-      sections.push('## Constraints & Tech');
+      sections.push(t.constraintsTech);
       data.manifest.constraints.forEach(c => sections.push(`- ${c}`));
       data.manifest.tech_stack.forEach(t => sections.push(`- ${t}`));
       sections.push('');
     }
   }
-
   if (data.focus) {
-    sections.push('## Current inferred focus');
+    sections.push(t.currentFocus);
     sections.push(data.focus.focus);
-    sections.push(`confidence: ${data.focus.confidence}`);
+    sections.push(`${t.confidence}: ${data.focus.confidence}`);
     sections.push('');
   }
   if (data.milestoneSignals && data.milestoneSignals.length > 0) {
-    sections.push('## Milestone Signals');
+    sections.push(t.milestoneSignals);
     data.milestoneSignals.forEach(signal => {
-      sections.push(`- ${signal.name} (confidence: ${signal.confidence})`);
+      sections.push(`- ${signal.name} (${t.confidence}: ${signal.confidence})`);
       sections.push(`  ${signal.reason}`);
     });
     sections.push('');
   }
-
-  if (data.progress && data.progress.length > 0) {
-    sections.push('## Recent Progress');
-    data.progress.slice(-5).forEach(p => {
-      sections.push(`- [${p.date.split('T')[0]}] ${p.summary} (confidence: ${p.confidence})`);
+  
+  // Milestone Progress section
+  if (data.milestoneProgress && data.milestoneProgress.length > 0) {
+    sections.push(t.milestoneProgress);
+    data.milestoneProgress.forEach(est => {
+      sections.push(`- ${est.milestone_name}: ${est.percentage}% (${t.confidence}: ${est.confidence})`);
+      const lines = est.explanation.split('\n');
+      lines.forEach(line => {
+        if (line.trim()) {
+          sections.push(`  ${line}`);
+        }
+      });
     });
     sections.push('');
   }
-
+  
+  // Suggested Next Actions section
+  if (data.nextActions && data.nextActions.length > 0) {
+    sections.push(t.suggestedNextActions);
+    data.nextActions.forEach((action, index) => {
+      sections.push(`${index + 1}. [Priority: ${action.priority_score}] ${action.title}`);
+      sections.push(`   - ${t.impact}: ${action.impact} | ${t.effort}: ${action.effort} | ${t.confidence}: ${action.confidence}`);
+      sections.push(`   - ${t.reason}: ${action.reasoning}`);
+      if (action.related_milestone) {
+        sections.push(`   - ${t.related}: ${action.related_milestone}`);
+      }
+    });
+    sections.push('');
+  }
+  if (data.progress && data.progress.length > 0) {
+    sections.push(t.recentProgress);
+    data.progress.slice(-5).forEach(p => {
+      sections.push(`- [${p.date.split('T')[0]}] ${p.summary} (${t.confidence}: ${p.confidence})`);
+    });
+    sections.push('');
+  }
   if (data.decisions && data.decisions.length > 0) {
-    sections.push('## Key Decisions');
+    sections.push(t.keyDecisions);
     data.decisions.slice(-5).forEach(d => {
       sections.push(`- ${d.decision}`);
-      sections.push(`  Reason: ${d.reason}`);
+      sections.push(`  ${t.reason}: ${d.reason}`);
     });
     sections.push('');
   }
-
-
   if (data.recentCommits.length > 0) {
-    sections.push('## Recent activity');
+    sections.push(t.recentActivity);
     const summaryLines = data.recentCommits.slice(0, 10).map(c => 
       `- [${c.tag}] ${c.message.substring(0, 80)}`
     );
     sections.push(...summaryLines);
     sections.push('');
   }
-
   if (data.notes.length > 0) {
     const unknowns = data.notes.filter(n => n.tags.includes('unknown'));
     if (unknowns.length > 0) {
-      sections.push('## Unknowns');
+      sections.push(t.unknowns);
       unknowns.forEach(u => sections.push(`- ${u.note}`));
       sections.push('');
     }
   }
-
   return sections.join('\n');
 }

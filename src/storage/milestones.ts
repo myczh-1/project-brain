@@ -7,6 +7,13 @@ export interface Milestone {
   status: 'not_started' | 'in_progress' | 'completed';
   confidence?: 'low' | 'mid' | 'high';
   detected_at?: string;
+  
+  // Progress estimation fields
+  progress_percentage?: number;      // 0-100
+  progress_explanation?: string;     // Explainable reasoning
+  estimated_effort?: number;         // Optional effort estimate
+  completed_effort?: number;         // Optional completed effort
+  last_updated?: string;             // Last progress update time
 }
 
 const MILESTONES_FILE = 'milestones.json';

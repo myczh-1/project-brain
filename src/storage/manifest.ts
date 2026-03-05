@@ -9,6 +9,7 @@ export interface Manifest {
   constraints: string[];
   tech_stack: string[];
   created_at: string;
+  locale?: string;  // 'zh-CN' | 'en-US' | 'auto' (default)
 }
 
 const MANIFEST_FILE = 'manifest.json';

@@ -7,6 +7,9 @@ import { generateContextText, ContextData } from '../understanding/contextTempla
 import { readProgress } from '../storage/progress.js';
 import { readDecisions } from '../storage/decisions.js';
 import { readMilestones } from '../storage/milestones.js';
+import { estimateAllMilestones, ProgressEstimation } from '../understanding/estimateProgress.js';
+import { NextAction } from '../storage/nextActions.js';
+import { recommendNextActions } from '../understanding/recommendActions.js';
 
 export interface ProjectContextInput {
   depth?: 'short' | 'normal';
@@ -23,6 +26,8 @@ export interface ProjectContextOutput {
     notes: Note[];
     focus: string;
     confidence: string;
+    milestone_progress?: ProgressEstimation[];
+    next_actions?: NextAction[];
   };
 }
 
@@ -38,12 +43,33 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
   let recentCommits: Commit[] = [];
   let focus = null;
   let milestoneSignals: MilestoneSignal[] = [];
+  let milestoneProgress: ProgressEstimation[] = [];
+  let nextActions: NextAction[] = [];
 
   if (includeActivity) {
     recentCommits = parseLog(recentCommitsCount, cwd);
     const hotPaths = calculateHotPaths(recentCommits, cwd);
     focus = inferFocus(recentCommits, hotPaths);
     milestoneSignals = inferMilestoneSignals(recentCommits, hotPaths);
+    
+    // Estimate milestone progress
+    const milestones = readMilestones(cwd);
+    if (milestones.length > 0) {
+      milestoneProgress = estimateAllMilestones(milestones, recentCommits, hotPaths);
+    }
+    
+    // Generate next action recommendations
+    const progress = readProgress(cwd);
+    const decisions = readDecisions(cwd);
+    const recommendations = recommendNextActions(
+      milestones,
+      recentCommits,
+      hotPaths,
+      progress,
+      decisions,
+      milestoneProgress
+    );
+    nextActions = recommendations.next_actions;
   }
 
   const progress = readProgress(cwd);
@@ -59,6 +85,8 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
     progress,
     decisions,
     milestones,
+    milestoneProgress,
+    nextActions,
   };
 
   const contextText = generateContextText(contextData);
@@ -71,6 +99,8 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
       notes,
       focus: focus?.focus || '',
       confidence: focus?.confidence || '',
+      milestone_progress: milestoneProgress,
+      next_actions: nextActions,
     },
   };
 }
