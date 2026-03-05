@@ -6,6 +6,12 @@ export interface FocusInference {
   confidence: 'low' | 'mid' | 'high';
 }
 
+export interface MilestoneSignal {
+  name: string;
+  confidence: 'low' | 'mid' | 'high';
+  reason: string;
+}
+
 export function inferFocus(commits: Commit[], hotPaths: HotPath[]): FocusInference {
   if (commits.length === 0) {
     return {
@@ -53,4 +59,62 @@ export function inferFocus(commits: Commit[], hotPaths: HotPath[]): FocusInferen
   }
 
   return { focus, confidence };
+}
+
+export function inferMilestoneSignals(commits: Commit[], hotPaths: HotPath[]): MilestoneSignal[] {
+  const signals: MilestoneSignal[] = [];
+
+  const recentMessages = commits.slice(0, 10).map(c => c.message.toLowerCase());
+  
+  const milestonePatterns = [
+    {
+      keywords: ['mcp', 'server', 'protocol'],
+      name: 'MCP Server Implementation',
+      threshold: 2
+    },
+    {
+      keywords: ['test', 'testing', 'spec'],
+      name: 'Testing Infrastructure',
+      threshold: 3
+    },
+    {
+      keywords: ['deploy', 'release', 'publish'],
+      name: 'Deployment Ready',
+      threshold: 2
+    },
+    {
+      keywords: ['refactor', 'cleanup', 'restructure'],
+      name: 'Code Refactoring',
+      threshold: 3
+    },
+    {
+      keywords: ['docs', 'documentation', 'readme'],
+      name: 'Documentation',
+      threshold: 2
+    }
+  ];
+
+  for (const pattern of milestonePatterns) {
+    let matchCount = 0;
+    
+    for (const message of recentMessages) {
+      if (pattern.keywords.some(kw => message.includes(kw))) {
+        matchCount++;
+      }
+    }
+
+    if (matchCount >= pattern.threshold) {
+      const confidence: 'low' | 'mid' | 'high' = 
+        matchCount >= pattern.threshold * 2 ? 'high' :
+        matchCount >= pattern.threshold * 1.5 ? 'mid' : 'low';
+
+      signals.push({
+        name: pattern.name,
+        confidence,
+        reason: `Detected ${matchCount} related commits in recent activity`
+      });
+    }
+  }
+
+  return signals;
 }
