@@ -1,63 +1,127 @@
-# Project Brain
+Project Brain
 
-AI Project Context Engine - MCP server for understanding project context.
+AI Project Context Engine — an MCP server that helps AI coding agents understand your project.
 
-## What is Project Brain?
+Project Brain reads your Git history, stores project notes, and generates structured project context for AI assistants.
 
-Project Brain is an MCP (Model Context Protocol) server that helps AI coding agents understand your project by:
+⸻
 
-- Reading local Git history
-- Storing project initialization information
-- Capturing user notes
-- Generating stable project context for AI
+Quick Start
 
-## Installation
+Run the MCP server:
 
-```bash
-npx project-brain
-```
+npx -y @myczh/project-brain
 
-## Usage
+If you see:
 
-Add to your MCP client configuration:
+Project Brain MCP server running on stdio
 
-```json
+the server started successfully.
+
+⸻
+
+Add to MCP Client
+
+OpenCode
+
+Add to your config:
+
 {
-  "mcpServers": {
-    "project-brain": {
-      "command": "npx",
-      "args": ["-y", "project-brain"]
-    }
-  }
+"$schema": "https://opencode.ai/config.json",
+"mcp": {
+"project-brain": {
+"type": "local",
+"command": ["npx", "-y", "@myczh/project-brain"],
+"enabled": true
 }
-```
+}
+}
 
-## Available Tools
+Restart OpenCode after updating the config.
 
-### project_init
+⸻
 
-Initialize project with manifest information.
+Claude Desktop
 
-### project_recent_activity
+Edit:
 
-Get recent git activity with commits and hot paths.
+~/Library/Application Support/Claude/claude_desktop_config.json
 
-### project_context
+Add:
+
+{
+"mcpServers": {
+"project-brain": {
+"command": "npx",
+"args": ["-y", "@myczh/project-brain"]
+}
+}
+}
+
+Restart Claude Desktop.
+
+⸻
+
+Cursor
+
+Add to MCP config:
+
+{
+"mcpServers": {
+"project-brain": {
+"command": "npx",
+"args": ["-y", "@myczh/project-brain"]
+}
+}
+}
+
+Restart Cursor.
+
+⸻
+
+Available Tools
+
+project_init
+
+Initialize the project with manifest information.
+
+project_recent_activity
+
+Read recent Git commits and detect hot paths.
+
+project_context
 
 Generate AI-ready project context.
 
-### project_capture_note
+project_capture_note
 
-Capture notes about the project.
+Store notes about the project.
 
-## Local Development
+⸻
 
-```bash
+Local Development
+
+Clone the repository:
+
+git clone https://github.com/myczh-1/project-brain-mcp
+cd project-brain-mcp
+
+Install dependencies:
+
 pnpm install
-pnpm dev
-pnpm build
-```
 
-## License
+Run development server:
+
+pnpm dev
+
+Build:
+
+pnpm build
+
+
+⸻
+
+License
 
 MIT
+

@@ -1,5 +1,5 @@
 {
-  "name": "project-brain",
+  "name": "@myczh/project-brain",
   "version": "0.0.1",
   "description": "AI Project Context Engine - MCP server for understanding project context",
   "type": "module",
@@ -7,12 +7,13 @@
     "project-brain": "./dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md", "LICENSE"
   ],
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "mcp",
@@ -32,5 +33,13 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myczh-1/project-brain-mcp.git"
+  },
+  "homepage": "https://github.com/myczh-1/project-brain-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/myczh-1/project-brain-mcp/issues"
   }
 }
