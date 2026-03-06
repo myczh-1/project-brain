@@ -1,7 +1,15 @@
 import { readMilestones } from '../storage/milestones.js';
 import { parseLog } from '../git/parseLog.js';
 import { calculateHotPaths } from '../git/hotPaths.js';
-import { estimateAllMilestones, estimateMilestoneProgress, ProgressEstimation } from '../understanding/estimateProgress.js';
+import {
+  estimateAllMilestones,
+  estimateProgressSummary,
+  progressSummaryToOverallEstimation,
+  ProgressEstimation,
+  ProgressSummary,
+} from '../understanding/estimateProgress.js';
+import { inferMilestoneSignals } from '../understanding/inferFocus.js';
+import { upsertInferredMilestones } from '../storage/milestones.js';
 
 export interface EstimateMilestoneProgressInput {
   milestone_name?: string;  // Optional: estimate specific milestone
@@ -11,6 +19,7 @@ export interface EstimateMilestoneProgressInput {
 
 export interface EstimateMilestoneProgressOutput {
   estimations: ProgressEstimation[];
+  summary: ProgressSummary;
 }
 
 export async function estimateMilestoneProgressTool(
@@ -20,24 +29,36 @@ export async function estimateMilestoneProgressTool(
   const recentCommitsCount = input.recent_commits || 50;
 
   // Load data
-  const milestones = readMilestones(cwd);
   const commits = parseLog(recentCommitsCount, cwd);
   const hotPaths = calculateHotPaths(commits, cwd);
+  const inferredSignals = inferMilestoneSignals(commits, hotPaths);
 
-  // Filter milestones if specific name provided
-  let targetMilestones = milestones;
-  if (input.milestone_name) {
-    targetMilestones = milestones.filter(m => m.name === input.milestone_name);
-    
-    if (targetMilestones.length === 0) {
-      throw new Error(`Milestone not found: ${input.milestone_name}`);
-    }
+  let milestones = readMilestones(cwd);
+  if (inferredSignals.length > 0) {
+    milestones = upsertInferredMilestones(inferredSignals, cwd);
   }
 
-  // Estimate progress
-  const estimations = estimateAllMilestones(targetMilestones, commits, hotPaths);
+  const allMilestoneEstimations = milestones.length > 0
+    ? estimateAllMilestones(milestones, commits, hotPaths)
+    : [];
+  const summary = estimateProgressSummary(milestones, allMilestoneEstimations, commits, hotPaths);
+  const overall = progressSummaryToOverallEstimation(summary);
+
+  let estimations: ProgressEstimation[] = [];
+  if (input.milestone_name) {
+    const selected = allMilestoneEstimations.filter(m => m.milestone_name === input.milestone_name);
+    if (selected.length === 0) {
+      throw new Error(`Milestone not found: ${input.milestone_name}`);
+    }
+    estimations = selected;
+  } else if (allMilestoneEstimations.length > 0) {
+    estimations = [overall, ...allMilestoneEstimations];
+  } else {
+    estimations = [overall];
+  }
 
   return {
-    estimations
+    estimations,
+    summary,
   };
 }

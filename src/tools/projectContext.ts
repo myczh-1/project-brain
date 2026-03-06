@@ -6,8 +6,14 @@ import { inferFocus, inferMilestoneSignals, MilestoneSignal } from '../understan
 import { generateContextText, ContextData } from '../understanding/contextTemplate.js';
 import { readProgress } from '../storage/progress.js';
 import { readDecisions } from '../storage/decisions.js';
-import { readMilestones } from '../storage/milestones.js';
-import { estimateAllMilestones, ProgressEstimation } from '../understanding/estimateProgress.js';
+import { readMilestones, upsertInferredMilestones } from '../storage/milestones.js';
+import {
+  estimateAllMilestones,
+  estimateProgressSummary,
+  progressSummaryToOverallEstimation,
+  ProgressEstimation,
+  ProgressSummary,
+} from '../understanding/estimateProgress.js';
 import { NextAction } from '../storage/nextActions.js';
 import { recommendNextActions } from '../understanding/recommendActions.js';
 
@@ -27,6 +33,7 @@ export interface ProjectContextOutput {
     focus: string;
     confidence: string;
     milestone_progress?: ProgressEstimation[];
+    progress_summary?: ProgressSummary;
     next_actions?: NextAction[];
   };
 }
@@ -39,11 +46,13 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
 
   const manifest = readManifest(cwd);
   const notes = readNotes(cwd);
+  let milestones = readMilestones(cwd);
   
   let recentCommits: Commit[] = [];
   let focus = null;
   let milestoneSignals: MilestoneSignal[] = [];
   let milestoneProgress: ProgressEstimation[] = [];
+  let progressSummary: ProgressSummary | undefined;
   let nextActions: NextAction[] = [];
 
   if (includeActivity) {
@@ -52,11 +61,16 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
     focus = inferFocus(recentCommits, hotPaths);
     milestoneSignals = inferMilestoneSignals(recentCommits, hotPaths);
     
-    // Estimate milestone progress
-    const milestones = readMilestones(cwd);
-    if (milestones.length > 0) {
-      milestoneProgress = estimateAllMilestones(milestones, recentCommits, hotPaths);
+    if (milestoneSignals.length > 0) {
+      milestones = upsertInferredMilestones(milestoneSignals, cwd);
     }
+
+    const milestoneEstimations = milestones.length > 0
+      ? estimateAllMilestones(milestones, recentCommits, hotPaths)
+      : [];
+    progressSummary = estimateProgressSummary(milestones, milestoneEstimations, recentCommits, hotPaths);
+    const overall = progressSummaryToOverallEstimation(progressSummary);
+    milestoneProgress = milestoneEstimations.length > 0 ? [overall, ...milestoneEstimations] : [overall];
     
     // Generate next action recommendations
     const progress = readProgress(cwd);
@@ -74,8 +88,6 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
 
   const progress = readProgress(cwd);
   const decisions = readDecisions(cwd);
-  const milestones = readMilestones(cwd);
-
   const contextData: ContextData = {
     manifest,
     recentCommits: depth === 'short' ? recentCommits.slice(0, 5) : recentCommits,
@@ -100,6 +112,7 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
       focus: focus?.focus || '',
       confidence: focus?.confidence || '',
       milestone_progress: milestoneProgress,
+      progress_summary: progressSummary,
       next_actions: nextActions,
     },
   };

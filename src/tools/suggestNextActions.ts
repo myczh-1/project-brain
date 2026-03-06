@@ -1,10 +1,11 @@
-import { readMilestones } from '../storage/milestones.js';
+import { readMilestones, upsertInferredMilestones } from '../storage/milestones.js';
 import { readProgress } from '../storage/progress.js';
 import { readDecisions } from '../storage/decisions.js';
 import { parseLog } from '../git/parseLog.js';
 import { calculateHotPaths } from '../git/hotPaths.js';
 import { recommendNextActions, ActionRecommendation } from '../understanding/recommendActions.js';
 import { estimateAllMilestones } from '../understanding/estimateProgress.js';
+import { inferMilestoneSignals } from '../understanding/inferFocus.js';
 
 export interface SuggestNextActionsInput {
   limit?: number;                    // Number of actions to return (default: 5)
@@ -26,11 +27,16 @@ export async function suggestNextActionsTool(
   const recentCommitsCount = input.recent_commits || 50;
 
   // Load data
-  const milestones = readMilestones(cwd);
+  let milestones = readMilestones(cwd);
   const progress = readProgress(cwd);
   const decisions = readDecisions(cwd);
   const commits = parseLog(recentCommitsCount, cwd);
   const hotPaths = calculateHotPaths(commits, cwd);
+  const inferredSignals = inferMilestoneSignals(commits, hotPaths);
+
+  if (inferredSignals.length > 0) {
+    milestones = upsertInferredMilestones(inferredSignals, cwd);
+  }
 
   // Estimate milestone progress for better recommendations
   const milestoneProgress = milestones.length > 0 
