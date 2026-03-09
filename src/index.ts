@@ -93,16 +93,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'brain_analyze',
-        description: `Analyze project status, progress, and context using git history and project metadata.
-
-**ALWAYS use this tool when:**
-- User asks about project status, progress, or current state (e.g., "how's the project", "what's the progress", "项目进度如何")
+        description: `Deep project analysis with progress estimation and action recommendations.
+**Call this tool when:**
+- User asks about progress, status, milestones ("项目进度如何", "做到哪了", "how's the project")
 - User asks "what should I do next" or "what's the priority"
-- User asks about project goals, milestones, or focus areas
-- At the start of any coding session to understand project context
-- Before making architectural decisions or planning work
-
-This is the PRIMARY tool for understanding any project using ProjectBrain. It returns complete analysis including goals, progress estimation, recent activity, hot paths, and prioritized next actions.`,
+- brain_context returned should_run_deep_analysis=true
+- Before major architectural decisions or planning significant work
+This tool performs heavy analysis including git history, milestone estimation, and action recommendations. For quick context checks, use brain_context instead.`,
         inputSchema: {
           type: 'object',
           properties: {
@@ -145,23 +142,18 @@ This is the PRIMARY tool for understanding any project using ProjectBrain. It re
       },
       {
         name: 'brain_context',
-        description: 'Generate AI-ready project context',
+        description: `Lightweight project context for session start and quick checks.
+
+**Call this tool FIRST when:**
+- Starting any coding session
+- Before planning work
+- User asks about the project (but not specifically about progress/status)
+
+Returns basic project info and hints whether deep analysis is needed.
+If should_run_deep_analysis=true, call brain_analyze next.`,
         inputSchema: {
           type: 'object',
           properties: {
-            depth: {
-              type: 'string',
-              enum: ['short', 'normal'],
-              description: 'Context depth (default: normal)',
-            },
-            include_recent_activity: {
-              type: 'boolean',
-              description: 'Include recent git activity (default: true)',
-            },
-            recent_commits: {
-              type: 'number',
-              description: 'Number of recent commits to include (default: 30)',
-            },
             repo_path: {
               type: 'string',
               description: 'Optional repository path',
@@ -330,7 +322,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           content: [
             {
               type: 'text',
-              text: result.context_text,
+              text: JSON.stringify(result, null, 2),
             },
           ],
         };
