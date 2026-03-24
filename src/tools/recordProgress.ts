@@ -23,6 +23,7 @@ export interface RecordProgressInput {
 export interface RecordProgressOutput {
   status: 'ok';
   recorded_type: string;
+  progress_id?: string;
 }
 
 export async function recordProgress(input: RecordProgressInput): Promise<RecordProgressOutput> {
@@ -45,7 +46,7 @@ export async function recordProgress(input: RecordProgressInput): Promise<Record
       };
       
       appendProgress(entry, cwd);
-      return { status: 'ok', recorded_type: 'progress' };
+      return { status: 'ok', recorded_type: 'progress', progress_id: entry.id };
     }
 
     case 'milestone': {

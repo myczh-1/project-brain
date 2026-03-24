@@ -12,6 +12,8 @@ Project Brain is an MCP server that helps agents understand a repository through
 - `progress / milestones`: execution facts
 - `git / hot paths`: code evidence
 
+It also exposes a read-only `MCP Apps` dashboard surface through `brain_dashboard` for hosts that support embedded app UIs. Hosts without Apps support still receive the same summary and structured data as normal tool output.
+
 It is designed to answer two different questions:
 
 - "What kind of project is this?"
@@ -128,17 +130,28 @@ Project Brain stores data in `.project-brain/`:
 
 ### Memory capture
 
+- `brain_ingest_memory`: validate and route a GPT-structured memory record into the right layer
 - `brain_log_decision`: record a concrete decision with rationale
 - `brain_capture_note`: capture a raw note or observation
 - `brain_record_progress`: record progress facts or milestone state
 
 ### Analysis
 
+- `brain_dashboard`: read-only project dashboard with project overview, recent activity, memory summaries, and next actions
 - `brain_context`: get project-level context
 - `brain_recent_activity`: inspect recent commits and hot paths
 - `brain_analyze`: run deeper analysis with progress estimation and action suggestions
 - `brain_estimate_progress`: estimate milestone progress
 - `brain_suggest_actions`: generate prioritized next actions
+
+## MCP Apps Notes
+
+- `brain_dashboard` keeps the existing `stdio` workflow intact. No extra port or web server is required.
+- Hosts with MCP Apps support can render the dashboard resource inline through `ui://project-brain/dashboard`.
+- Hosts without MCP Apps support still get:
+  - a compact text summary
+  - the full dashboard payload in `structuredContent`
+  - a `resource_link` to `ui://project-brain/dashboard`
 
 ## Example Flow
 
@@ -148,6 +161,48 @@ Project Brain stores data in `.project-brain/`:
 4. Log important choices with `brain_log_decision`
 5. Track implementation facts with `brain_record_progress`
 6. Ask `brain_change_context` for the full execution context before coding
+
+## GPT Collaboration Loop
+
+Use GPT for convergence, not as the memory system and not as the executor.
+
+Standard loop:
+
+1. Use GPT to discuss and converge
+2. Ask GPT for a ProjectBrain-structured result
+3. Confirm manually
+4. Call `brain_ingest_memory`
+5. Use `brain_change_context` for execution
+
+Recommended GPT prompt:
+
+```text
+把我们刚才的讨论整理成可写入 ProjectBrain 的结构化结论，并标明 type。不要解释，只输出 JSON。
+```
+
+Example ingest request:
+
+```json
+{
+  "memory": {
+    "type": "decision",
+    "confirmed_by_user": true,
+    "payload": {
+      "title": "Separate identity and governance",
+      "decision": "Keep manifest as identity anchor and move stable rules to project-spec",
+      "rationale": "This avoids overlap between identity and governance layers",
+      "scope": "project"
+    }
+  }
+}
+```
+
+`brain_ingest_memory` is intentionally single-record and create-first:
+
+- it validates the payload
+- it routes the record to the right ProjectBrain tool
+- it rejects silent overwrites of existing project spec or change spec
+- it keeps execution agents dependent on ProjectBrain context, not GPT chat history
 
 ## OpenSpec Compatibility
 

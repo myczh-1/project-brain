@@ -2,7 +2,12 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import {
+  CallToolRequestSchema,
+  ListResourcesRequestSchema,
+  ListToolsRequestSchema,
+  ReadResourceRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
 
 import { projectInit } from './tools/projectInit.js';
 import { defineProjectSpec } from './tools/defineProjectSpec.js';
@@ -17,14 +22,54 @@ import { recordProgress } from './tools/recordProgress.js';
 import { estimateMilestoneProgressTool } from './tools/estimateMilestoneProgress.js';
 import { suggestNextActionsTool } from './tools/suggestNextActions.js';
 import { brainAnalyze } from './tools/brainAnalyze.js';
+import { ingestMemory } from './tools/ingestMemory.js';
+import { brainDashboard } from './tools/dashboard.js';
+import {
+  getDashboardResourceDefinition,
+  getDashboardResourceContents,
+  getDashboardResourceMimeType,
+  getDashboardResourceUri,
+} from './dashboard/renderDashboardApp.js';
+
+function textResult(payload: unknown) {
+  return {
+    content: [{ type: 'text' as const, text: JSON.stringify(payload, null, 2) }],
+  };
+}
 
 const server = new Server(
   { name: 'project-brain', version: '0.0.1' },
-  { capabilities: { tools: {} } }
+  { capabilities: { resources: {}, tools: {} } }
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
+    {
+      name: 'brain_dashboard',
+      description: 'Return a read-only project dashboard with structured data and an MCP Apps UI resource when supported by the host.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          repo_path: { type: 'string', description: 'Optional repository path' },
+          include_deep_analysis: {
+            type: 'boolean',
+            description: 'Set false for a lighter summary path that skips deep analysis.',
+          },
+          recent_commits: {
+            type: 'number',
+            description: 'Number of commits to inspect when building the dashboard (default: 50).',
+          },
+        },
+      },
+      _meta: {
+        ui: {
+          resourceUri: getDashboardResourceUri(),
+          visibility: ['app', 'model'],
+        },
+        'openai/outputTemplate': getDashboardResourceUri(),
+        'openai/widgetAccessible': true,
+      },
+    },
     {
       name: 'brain_init',
       description: 'Initialize or update the project identity anchor in manifest.json.',
@@ -160,6 +205,33 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
+      name: 'brain_ingest_memory',
+      description: 'Validate and ingest a single GPT-structured memory record into the correct ProjectBrain layer.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          repo_path: { type: 'string' },
+          memory: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
+                enum: ['project_spec', 'change_spec', 'decision', 'note', 'progress'],
+              },
+              confirmed_by_user: { type: 'boolean' },
+              source: { type: 'string' },
+              payload: {
+                type: 'object',
+                description: 'Structured payload for the declared memory type.',
+              },
+            },
+            required: ['type', 'payload', 'confirmed_by_user'],
+          },
+        },
+        required: ['memory'],
+      },
+    },
+    {
       name: 'brain_analyze',
       description: 'Deep project analysis with progress estimation and action recommendations.',
       inputSchema: {
@@ -265,58 +337,83 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   ],
 }));
 
+server.setRequestHandler(ListResourcesRequestSchema, async () => ({
+  resources: [getDashboardResourceDefinition()],
+}));
+
+server.setRequestHandler(ReadResourceRequestSchema, async request => {
+  const { uri } = request.params;
+
+  if (uri !== getDashboardResourceUri()) {
+    throw new Error(`Unknown resource: ${uri}`);
+  }
+
+  return getDashboardResourceContents();
+});
+
 server.setRequestHandler(CallToolRequestSchema, async request => {
   try {
     const { name, arguments: args } = request.params;
-    let result: unknown;
 
     switch (name) {
+      case 'brain_dashboard': {
+        const result = await brainDashboard(args as never);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: result.summary,
+            },
+            {
+              type: 'resource_link',
+              uri: result.resource_uri,
+              name: 'project-brain-dashboard',
+              title: 'Project Brain Dashboard',
+              description: 'Open the dashboard UI in hosts that support MCP Apps resources.',
+              mimeType: getDashboardResourceMimeType(),
+            },
+          ],
+          structuredContent: result.dashboard as unknown as Record<string, unknown>,
+          _meta: {
+            ui: {
+              resourceUri: result.resource_uri,
+            },
+            'openai/outputTemplate': result.resource_uri,
+            'project-brain/generatedAt': result.dashboard.meta.generated_at,
+          },
+        };
+      }
       case 'brain_init':
-        result = await projectInit(args as never);
-        break;
+        return textResult(await projectInit(args as never));
       case 'brain_define_project_spec':
-        result = await defineProjectSpec(args as never);
-        break;
+        return textResult(await defineProjectSpec(args as never));
       case 'brain_create_change':
-        result = await createChange(args as never);
-        break;
+        return textResult(await createChange(args as never));
       case 'brain_update_change':
-        result = await updateChange(args as never);
-        break;
+        return textResult(await updateChange(args as never));
       case 'brain_log_decision':
-        result = await logDecision(args as never);
-        break;
+        return textResult(await logDecision(args as never));
       case 'brain_change_context':
-        result = await changeContext(args as never);
-        break;
+        return textResult(await changeContext(args as never));
+      case 'brain_ingest_memory':
+        return textResult(await ingestMemory(args as never));
       case 'brain_analyze':
-        result = await brainAnalyze(args as never);
-        break;
+        return textResult(await brainAnalyze(args as never));
       case 'brain_recent_activity':
-        result = await projectRecentActivity(args as never);
-        break;
+        return textResult(await projectRecentActivity(args as never));
       case 'brain_context':
-        result = await projectContext(args as never);
-        break;
+        return textResult(await projectContext(args as never));
       case 'brain_record_progress':
-        result = await recordProgress(args as never);
-        break;
+        return textResult(await recordProgress(args as never));
       case 'brain_capture_note':
-        result = await projectCaptureNote(args as never);
-        break;
+        return textResult(await projectCaptureNote(args as never));
       case 'brain_estimate_progress':
-        result = await estimateMilestoneProgressTool(args as never);
-        break;
+        return textResult(await estimateMilestoneProgressTool(args as never));
       case 'brain_suggest_actions':
-        result = await suggestNextActionsTool(args as never);
-        break;
+        return textResult(await suggestNextActionsTool(args as never));
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
-
-    return {
-      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-    };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     return {
