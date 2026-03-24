@@ -7,6 +7,7 @@ export interface Note {
   time: string;
   tags: string[];
   note: string;
+  related_change_id?: string;
 }
 
 const NOTES_FILE = 'notes.ndjson';

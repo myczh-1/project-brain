@@ -111,7 +111,7 @@ export async function brainAnalyze(input: BrainAnalyzeInput): Promise<BrainAnaly
   return {
     summary: summaryParts.join(' | '),
     project_name: manifest.project_name,
-    goals: manifest.goals,
+    goals: manifest.long_term_goal ? [manifest.long_term_goal] : [],
     current_focus: {
       area: focus?.focus || 'Unknown',
       confidence: focus?.confidence || 'low',

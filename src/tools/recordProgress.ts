@@ -1,21 +1,18 @@
 import { appendProgress, ProgressEntry } from '../storage/progress.js';
-import { appendDecision, Decision } from '../storage/decisions.js';
 import { updateMilestone, Milestone } from '../storage/milestones.js';
 
 export interface RecordProgressInput {
-  type: 'progress' | 'decision' | 'milestone';
+  type: 'progress' | 'milestone';
   repo_path?: string;
   
   progress?: {
     summary: string;
+    status?: 'planned' | 'in_progress' | 'blocked' | 'done';
+    blockers?: string[];
+    related_change_id?: string;
     confidence: 'low' | 'mid' | 'high';
   };
-  
-  decision?: {
-    decision: string;
-    reason: string;
-  };
-  
+
   milestone?: {
     name: string;
     status: 'not_started' | 'in_progress' | 'completed';
@@ -38,28 +35,17 @@ export async function recordProgress(input: RecordProgressInput): Promise<Record
       }
       
       const entry: ProgressEntry = {
+        id: `progress-${Date.now()}`,
         date: new Date().toISOString(),
         summary: input.progress.summary,
+        status: input.progress.status,
+        blockers: input.progress.blockers,
+        related_change_id: input.progress.related_change_id,
         confidence: input.progress.confidence,
       };
       
       appendProgress(entry, cwd);
       return { status: 'ok', recorded_type: 'progress' };
-    }
-
-    case 'decision': {
-      if (!input.decision) {
-        throw new Error('decision data required when type is "decision"');
-      }
-      
-      const decision: Decision = {
-        decision: input.decision.decision,
-        reason: input.decision.reason,
-        date: new Date().toISOString(),
-      };
-      
-      appendDecision(decision, cwd);
-      return { status: 'ok', recorded_type: 'decision' };
     }
 
     case 'milestone': {

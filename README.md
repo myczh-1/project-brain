@@ -1,10 +1,30 @@
 # Project Brain
 
-AI Project Context Engine — an MCP server that helps AI coding agents understand your project.
+Project memory and execution context engine for AI coding agents.
 
-Project Brain reads your Git history, stores project notes, and generates structured project context for AI assistants.
+Project Brain is an MCP server that helps agents understand a repository through layered memory:
 
----
+- `manifest`: project identity anchor
+- `project-spec`: stable governance rules
+- `change-spec`: single-change contract
+- `decisions`: rationale log
+- `notes`: raw observations
+- `progress / milestones`: execution facts
+- `git / hot paths`: code evidence
+
+It is designed to answer two different questions:
+
+- "What kind of project is this?"
+- "What should an agent know before executing this change?"
+
+## Positioning
+
+Project Brain is not just another spec workflow tool.
+
+- OpenSpec focuses on defining structured changes
+- Project Brain focuses on combining project memory, historical decisions, and code evidence into agent-ready context
+
+Project Brain can also consume OpenSpec change inputs from `openspec/changes/` as a read-only source when generating change context.
 
 ## Quick Start
 
@@ -16,19 +36,15 @@ npx -y @myczh/project-brain
 
 If you see:
 
-```
+```text
 Project Brain MCP server running on stdio
 ```
 
 the server started successfully.
 
----
-
 ## Add to MCP Client
 
 ### OpenCode
-
-Add to your config:
 
 ```json
 {
@@ -43,19 +59,9 @@ Add to your config:
 }
 ```
 
-Restart OpenCode after updating the config.
-
----
-
 ### Claude Desktop
 
-Edit:
-
-```
-~/Library/Application Support/Claude/claude_desktop_config.json
-```
-
-Add:
+Update `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -67,15 +73,9 @@ Add:
   }
 }
 ```
-
-Restart Claude Desktop.
-
----
 
 ### Cursor
 
-Add to MCP config:
-
 ```json
 {
   "mcpServers": {
@@ -87,86 +87,86 @@ Add to MCP config:
 }
 ```
 
-Restart Cursor.
+## Memory Layout
 
----
+Project Brain stores data in `.project-brain/`:
+
+```text
+.project-brain/
+  manifest.json
+  project-spec.json
+  changes/
+    <change-id>.json
+  decisions.ndjson
+  notes.ndjson
+  progress.ndjson
+  milestones.json
+```
+
+### Layer responsibilities
+
+- `manifest.json`: project identity only
+- `project-spec.json`: stable rules that stay valid across multiple changes
+- `changes/<id>.json`: the contract for one change
+- `decisions.ndjson`: concrete decisions and rationale
+- `notes.ndjson`: temporary or raw observations
+- `progress.ndjson`: execution facts, blockers, current status
+- `milestones.json`: milestone state used for broader analysis
 
 ## Available Tools
 
-### brain_init
+### Identity and governance
 
-Collect and validate final goals. This tool now writes manifest only after explicit user confirmation.
+- `brain_init`: initialize or update the project identity anchor
+- `brain_define_project_spec`: define stable project rules
 
-- `answers` can be partial during collection; if incomplete, tool returns `need_more_info` with questions and `draft_manifest`
-- Manifest write is blocked unless explicit confirmation is provided: `confirmed_by_user=true`
-- Confirmation source is required before write: `goal_confirmation_source` (or legacy `goal_confirmation.source`)
-- Legacy `goal_confirmation` remains accepted for backward compatibility
-- Optional and can be empty/draft: `constraints`, `tech_stack`, `locale`
-- If already initialized, this tool returns `already_initialized` by default
-- To change goals later, call with `force_goal_update=true` and `update_reason` (enforced at runtime)
+### Change execution
 
-### brain_recent_activity
+- `brain_create_change`: create a change-spec
+- `brain_update_change`: update an existing change-spec
+- `brain_change_context`: generate execution-ready context for a specific change
 
-Read recent Git commits and detect hot paths.
+### Memory capture
 
-### brain_context
+- `brain_log_decision`: record a concrete decision with rationale
+- `brain_capture_note`: capture a raw note or observation
+- `brain_record_progress`: record progress facts or milestone state
 
-Generate AI-ready project context.
+### Analysis
 
-### brain_capture_note
+- `brain_context`: get project-level context
+- `brain_recent_activity`: inspect recent commits and hot paths
+- `brain_analyze`: run deeper analysis with progress estimation and action suggestions
+- `brain_estimate_progress`: estimate milestone progress
+- `brain_suggest_actions`: generate prioritized next actions
 
-Store notes about the project.
+## Example Flow
 
-### brain_record_progress
+1. Initialize the project identity with `brain_init`
+2. Define stable rules with `brain_define_project_spec`
+3. Create a change with `brain_create_change`
+4. Log important choices with `brain_log_decision`
+5. Track implementation facts with `brain_record_progress`
+6. Ask `brain_change_context` for the full execution context before coding
 
-Record progress, decisions, and milestones.
+## OpenSpec Compatibility
 
-### brain_estimate_progress
+Project Brain does not depend on OpenSpec, but it can read change intent from:
 
-Estimate milestone progress with explainable reasoning.
+- `openspec/changes/<change-id>/proposal.md`
+- `openspec/changes/<change-id>.md`
 
-### brain_suggest_actions
-
-Generate prioritized next actions.
-
-## Init Policy
-
-- `brain_init` is designed as a one-time goal anchor.
-- The long-term goal should come from explicit user input, not model guesses.
-- `brain_init` now enforces explicit confirmation that saved goals are final goals, not current implementation state.
-- Non-goal profile fields can be filled gradually or left empty.
-- Goal changes are allowed only when explicitly requested by the user.
-
----
+Compatibility is read-only in this version. Project Brain keeps its own memory layers for identity, stable rules, decisions, and progress.
 
 ## Local Development
-
-Clone the repository:
 
 ```bash
 git clone https://github.com/myczh-1/project-brain-mcp
 cd project-brain-mcp
-```
-
-Install dependencies:
-
-```bash
 pnpm install
-```
-
-Run development server:
-
-```bash
+pnpm build
 pnpm dev
 ```
-
-Build:
-
-```bash
-pnpm build
-```
-
----
 
 ## License
 

@@ -1,22 +1,61 @@
 import { readManifest } from '../storage/manifest.js';
+import { readProjectSpec } from '../storage/projectSpec.js';
+import { readDecisions } from '../storage/decisions.js';
+import { readProgress } from '../storage/progress.js';
+import { readMilestones } from '../storage/milestones.js';
 import { parseLog } from '../git/parseLog.js';
+import { calculateHotPaths } from '../git/hotPaths.js';
 export interface ProjectContextInput {
   repo_path?: string;
 }
 
 export interface ProjectContextOutput {
-  project_name: string;
-  one_liner: string;
-  goals: string[];
-  current_focus: {
-    area: string;
-    confidence: string;
+  project_identity: {
+    project_name: string;
+    summary: string;
+    repo_type: string;
+    primary_stack: string[];
+    long_term_goal?: string;
   };
-  last_commit: {
-    message: string;
-    time: string;
-    author: string;
+  stable_rules: {
+    product_goal: string;
+    non_goals: string[];
+    architecture_rules: string[];
+    coding_rules: string[];
+    agent_rules: string[];
   } | null;
+  recent_decisions: {
+    id: string;
+    title: string;
+    rationale: string;
+    scope: string;
+    created_at: string;
+  }[];
+  execution_state: {
+    recent_progress: {
+      summary: string;
+      status?: string;
+      blockers?: string[];
+      confidence: string;
+      date: string;
+    }[];
+    milestones: {
+      name: string;
+      status: string;
+      confidence?: string;
+    }[];
+  };
+  code_evidence: {
+    last_commit: {
+      message: string;
+      time: string;
+      author: string;
+    } | null;
+    hot_paths: {
+      path: string;
+      change_count: number;
+    }[];
+  };
   should_run_deep_analysis: boolean;
 }
 
@@ -28,30 +67,15 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
   if (!manifest) {
     throw new Error('Project not initialized. Please run brain_init first.');
   }
+  const projectSpec = readProjectSpec(cwd);
+  const decisions = readDecisions(cwd).slice(-5).reverse();
+  const progress = readProgress(cwd).slice(-5).reverse();
+  const milestones = readMilestones(cwd);
 
   // Read only last 5 commits for quick focus inference
   const recentCommits = parseLog(5, cwd);
+  const hotPaths = calculateHotPaths(recentCommits, cwd);
   
-  // Simple focus inference: just look at commit tags
-  let focusArea = 'Unknown';
-  let focusConfidence = 'low';
-  
-  if (recentCommits.length > 0) {
-    // Infer focus from commit tags
-    const tags = recentCommits.map(c => c.tag);
-    const tagCounts = new Map<string, number>();
-    tags.forEach(tag => tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1));
-    
-    const topTag = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1])[0];
-    if (topTag && topTag[0] !== 'other') {
-      focusArea = `Recent ${topTag[0]} work`;
-      focusConfidence = topTag[1] >= 3 ? 'high' : 'mid';
-    } else {
-      focusArea = 'General development';
-      focusConfidence = 'mid';
-    }
-  }
-
   // Determine if deep analysis is needed
   // Heuristic: if last commit was >24h ago, suggest deep analysis
   let shouldRunDeepAnalysis = false;
@@ -62,18 +86,56 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
   }
 
   return {
-    project_name: manifest.project_name,
-    one_liner: manifest.one_liner,
-    goals: manifest.goals,
-    current_focus: {
-      area: focusArea,
-      confidence: focusConfidence,
+    project_identity: {
+      project_name: manifest.project_name,
+      summary: manifest.summary,
+      repo_type: manifest.repo_type,
+      primary_stack: manifest.primary_stack,
+      long_term_goal: manifest.long_term_goal,
     },
-    last_commit: recentCommits.length > 0 ? {
-      message: recentCommits[0].message,
-      time: recentCommits[0].time,
-      author: recentCommits[0].author,
-    } : null,
+    stable_rules: projectSpec
+      ? {
+          product_goal: projectSpec.product_goal,
+          non_goals: projectSpec.non_goals,
+          architecture_rules: projectSpec.architecture_rules,
+          coding_rules: projectSpec.coding_rules,
+          agent_rules: projectSpec.agent_rules,
+        }
+      : null,
+    recent_decisions: decisions.map(decision => ({
+      id: decision.id,
+      title: decision.title,
+      rationale: decision.rationale,
+      scope: decision.scope,
+      created_at: decision.created_at,
+    })),
+    execution_state: {
+      recent_progress: progress.map(entry => ({
+        summary: entry.summary,
+        status: entry.status,
+        blockers: entry.blockers,
+        confidence: entry.confidence,
+        date: entry.date,
+      })),
+      milestones: milestones.map(milestone => ({
+        name: milestone.name,
+        status: milestone.status,
+        confidence: milestone.confidence,
+      })),
+    },
+    code_evidence: {
+      last_commit: recentCommits.length > 0
+        ? {
+            message: recentCommits[0].message,
+            time: recentCommits[0].time,
+            author: recentCommits[0].author,
+          }
+        : null,
+      hot_paths: hotPaths.slice(0, 5).map(pathEntry => ({
+        path: pathEntry.path,
+        change_count: pathEntry.change_count,
+      })),
+    },
     should_run_deep_analysis: shouldRunDeepAnalysis,
   };
 }

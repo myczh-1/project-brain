@@ -1,7 +1,7 @@
 {
   "name": "@myczh/project-brain",
   "version": "0.0.3",
-  "description": "AI Project Context Engine - MCP server for understanding project context",
+  "description": "Project memory and execution context engine for AI coding agents",
   "type": "module",
   "bin": {
     "project-brain": "./dist/index.js"

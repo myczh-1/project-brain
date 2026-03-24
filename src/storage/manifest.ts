@@ -4,17 +4,13 @@ import { ensureBrainDir, getBrainDir } from './brainDir.js';
 
 export interface Manifest {
   project_name: string;
-  one_liner: string;
-  goals: string[];
-  goal_confirmation?: {
-    confirmed_by_user: boolean;
-    goal_horizon: 'final';
-    source: string;
-  };
-  constraints: string[];
-  tech_stack: string[];
+  summary: string;
+  repo_type: string;
+  primary_stack: string[];
+  long_term_goal?: string;
+  locale?: string;
   created_at: string;
-  locale?: string;  // 'zh-CN' | 'en-US' | 'auto' (default)
+  updated_at: string;
 }
 
 const MANIFEST_FILE = 'manifest.json';
@@ -33,7 +29,28 @@ export function readManifest(cwd?: string): Manifest | null {
     return null;
   }
   const content = fs.readFileSync(manifestPath, 'utf-8');
-  return JSON.parse(content);
+  const parsed = JSON.parse(content) as Partial<Manifest> & {
+    one_liner?: string;
+    goals?: string[];
+    tech_stack?: string[];
+  };
+
+  return {
+    project_name: parsed.project_name || 'Unknown Project',
+    summary: parsed.summary || parsed.one_liner || '',
+    repo_type: parsed.repo_type || 'application',
+    primary_stack: Array.isArray(parsed.primary_stack)
+      ? parsed.primary_stack
+      : Array.isArray(parsed.tech_stack)
+      ? parsed.tech_stack
+      : [],
+    long_term_goal:
+      parsed.long_term_goal ||
+      (Array.isArray(parsed.goals) && parsed.goals.length > 0 ? parsed.goals.join('; ') : undefined),
+    locale: parsed.locale,
+    created_at: parsed.created_at || new Date().toISOString(),
+    updated_at: parsed.updated_at || parsed.created_at || new Date().toISOString(),
+  };
 }
 
 export function writeManifest(manifest: Manifest, cwd?: string): string {

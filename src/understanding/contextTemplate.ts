@@ -25,8 +25,8 @@ export interface ContextData {
 export function generateContextText(data: ContextData): string {
   // Detect locale
   const contentSample = [
-    data.manifest?.one_liner || '',
-    ...(data.manifest?.goals || []),
+    data.manifest?.summary || '',
+    data.manifest?.long_term_goal || '',
     ...(data.progress?.map(p => p.summary) || [])
   ].join(' ');
   
@@ -37,17 +37,17 @@ export function generateContextText(data: ContextData): string {
   sections.push(`${t.projectContext}\n`);
   if (data.manifest) {
     sections.push(t.oneLiner);
-    sections.push(data.manifest.one_liner || 'Not specified');
+    sections.push(data.manifest.summary || 'Not specified');
     sections.push('');
-    if (data.manifest.goals.length > 0) {
+    if (data.manifest.long_term_goal) {
       sections.push(t.goals);
-      data.manifest.goals.forEach(goal => sections.push(`- ${goal}`));
+      sections.push(`- ${data.manifest.long_term_goal}`);
       sections.push('');
     }
-    if (data.manifest.constraints.length > 0 || data.manifest.tech_stack.length > 0) {
+    if (data.manifest.primary_stack.length > 0) {
       sections.push(t.constraintsTech);
-      data.manifest.constraints.forEach(c => sections.push(`- ${c}`));
-      data.manifest.tech_stack.forEach(t => sections.push(`- ${t}`));
+      sections.push(`- Repo type: ${data.manifest.repo_type}`);
+      data.manifest.primary_stack.forEach(stack => sections.push(`- ${stack}`));
       sections.push('');
     }
   }
@@ -104,8 +104,8 @@ export function generateContextText(data: ContextData): string {
   if (data.decisions && data.decisions.length > 0) {
     sections.push(t.keyDecisions);
     data.decisions.slice(-5).forEach(d => {
-      sections.push(`- ${d.decision}`);
-      sections.push(`  ${t.reason}: ${d.reason}`);
+      sections.push(`- ${d.title}: ${d.decision}`);
+      sections.push(`  ${t.reason}: ${d.rationale}`);
     });
     sections.push('');
   }

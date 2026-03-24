@@ -208,11 +208,11 @@ function extractActionsFromDecisions(decisions: Decision[]): NextAction[] {
     
     if (hasActionKeyword) {
       actions.push({
-        id: `decision-${decision.date}`,
+        id: `decision-${decision.id}`,
         title: `Follow up: ${decision.decision}`,
-        description: `Decision made: ${decision.decision}. Reason: ${decision.reason}`,
+        description: `Decision made: ${decision.decision}. Rationale: ${decision.rationale}`,
         priority_score: 0,
-        reasoning: `Recent decision suggests this action. Made on ${decision.date.split('T')[0]}.`,
+        reasoning: `Recent decision suggests this action. Made on ${decision.created_at.split('T')[0]}.`,
         impact: 2,
         effort: 3,
         confidence: 'mid',

@@ -64,7 +64,7 @@ export const templates: Record<string, I18nTemplates> = {
 /**
  * Detect locale from manifest or content
  */
-export function detectLocale(manifest: { locale?: string } | null, content?: string): string {
+export function detectLocale(manifest: { locale?: string } | null | undefined, content?: string): string {
   // 1. Use explicit locale from manifest
   if (manifest?.locale && manifest.locale !== 'auto') {
     return manifest.locale;
