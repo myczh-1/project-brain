@@ -1,97 +1,27 @@
 # Project Brain
 
-Project memory and execution context engine for AI coding agents.
+Project Brain is an HTTP service for AI collaborative development.
 
-Project Brain is an MCP server that helps agents understand a repository through layered memory:
+Its responsibility is the engineering loop after project intent has begun to exist:
 
-- `manifest`: project identity anchor
-- `project-spec`: stable governance rules
-- `change-spec`: single-change contract
-- `decisions`: rationale log
-- `notes`: raw observations
-- `progress / milestones`: execution facts
-- `git / hot paths`: code evidence
+`memory ingestion -> development trace -> project spec`
 
-It also exposes a read-only `MCP Apps` dashboard surface through `brain_dashboard` for hosts that support embedded app UIs. Hosts without Apps support still receive the same summary and structured data as normal tool output.
-
-It is designed to answer two different questions:
-
-- "What kind of project is this?"
-- "What should an agent know before executing this change?"
+It accepts signals from discussion, user input, repository activity, and ongoing implementation, then turns those signals into durable project memory and spec-ready context.
 
 ## Positioning
 
-Project Brain is not just another spec workflow tool.
+Project Brain should be understood as an analysis-driven project memory mechanism.
 
-- OpenSpec focuses on defining structured changes
-- Project Brain focuses on combining project memory, historical decisions, and code evidence into agent-ready context
+It is useful in two situations:
 
-Project Brain can also consume OpenSpec change inputs from `openspec/changes/` as a read-only source when generating change context.
+- the team already has discussion results or project input that should be ingested as durable memory
+- the team is already coding and wants the system to keep recording and interpreting process even if the early discussion was not captured
 
-## Quick Start
+That means `brain_init` is optional. It is an identity anchor, not a hard prerequisite for using the system.
 
-Run the MCP server:
+## Core Model
 
-```bash
-npx -y @myczh/project-brain
-```
-
-If you see:
-
-```text
-Project Brain MCP server running on stdio
-```
-
-the server started successfully.
-
-## Add to MCP Client
-
-### OpenCode
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "project-brain": {
-      "type": "local",
-      "command": ["npx", "-y", "@myczh/project-brain"],
-      "enabled": true
-    }
-  }
-}
-```
-
-### Claude Desktop
-
-Update `~/Library/Application Support/Claude/claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "project-brain": {
-      "command": "npx",
-      "args": ["-y", "@myczh/project-brain"]
-    }
-  }
-}
-```
-
-### Cursor
-
-```json
-{
-  "mcpServers": {
-    "project-brain": {
-      "command": "npx",
-      "args": ["-y", "@myczh/project-brain"]
-    }
-  }
-}
-```
-
-## Memory Layout
-
-Project Brain stores data in `.project-brain/`:
+Project Brain stores project knowledge in `.project-brain/`:
 
 ```text
 .project-brain/
@@ -105,91 +35,101 @@ Project Brain stores data in `.project-brain/`:
   milestones.json
 ```
 
-### Layer responsibilities
+Each layer has a different responsibility:
 
-- `manifest.json`: project identity only
-- `project-spec.json`: stable rules that stay valid across multiple changes
-- `changes/<id>.json`: the contract for one change
-- `decisions.ndjson`: concrete decisions and rationale
-- `notes.ndjson`: temporary or raw observations
-- `progress.ndjson`: execution facts, blockers, current status
-- `milestones.json`: milestone state used for broader analysis
+- `manifest.json`: optional identity anchor for project name, summary, repo type, and long-term goal
+- `project-spec.json`: stable project truth, especially product goal, non-goals, architecture rules, coding rules, and agent rules
+- `changes/<id>.json`: a structured contract for one concrete change
+- `decisions.ndjson`: why a choice was made
+- `notes.ndjson`: raw observations and unresolved fragments
+- `progress.ndjson`: execution updates, blockers, and status
+- `milestones.json`: broader phase tracking
 
-## Architecture
+## Recommended Loop
 
-Project Brain is now split into explicit layers:
+The intended operating loop is:
 
-- `src/core`
-  - file-backed memory storage
-  - git evidence and repository inspection
-  - inference and recommendation logic
-- `src/service`
-  - product-facing use cases such as initialization, memory ingest, context building, and dashboard data assembly
-- `src/transports/mcp`
-  - MCP protocol adapter, tool registry, and resource registry
-- `src/app`
-  - runtime entrypoints
-  - current MCP stdio bootstrap
-  - future local server bootstrap placeholder
+1. Bring in project signals from user input, discussion outcomes, code activity, or development work.
+2. Analyze those signals and turn them into explicit memory records.
+3. Keep writing progress, decisions, notes, and changes as work continues.
+4. Use `brain_context` and `brain_change_context` to execute against accumulated memory.
+5. Reflect stable conclusions back into `project-spec`.
 
-Current production entry remains MCP over `stdio`.
-The split is intended to make future MCP over HTTP and custom web UI work reuse the same service layer.
+Project Brain is strongest when the team keeps the boundary clear:
 
-## Available Tools
+- external discussion can stay outside the system
+- Project Brain is responsible for what gets recorded and retained
+- spec must reflect stable conclusions, not temporary noise
 
-### Initialize
+## Available HTTP API Capabilities
 
-- `brain_init`: initialize or update the project identity anchor
+- `brain_dashboard`: inspect memory, recent activity, and current project state
+- `brain_context`: get lightweight project context for day-to-day execution
+- `brain_change_context`: get detailed context for one change before implementation
+- `brain_ingest_memory`: ingest one confirmed structured memory record
+- `brain_init`: optionally initialize or update the identity anchor
 
-### Inspect
+Internal service capabilities also exist for project-spec and change management, but the public tool surface stays intentionally small.
 
-- `brain_dashboard`: inspect the current project memory and status through a unified dashboard view
+## Why Analysis Matters
 
-### Execution Context
+Project Brain already includes analysis capabilities such as:
 
-- `brain_context`: get lightweight context for everyday coding conversations
-- `brain_change_context`: get detailed context for a specific change before larger decisions or implementations
+- git activity parsing
+- hot path detection
+- milestone estimation
+- next action recommendation
 
-### Update Memory
+These are not optional extras. They are required so the system can:
 
-- `brain_ingest_memory`: validate and ingest a structured memory record from user input or GPT output
+- discover what is worth remembering
+- keep recording development process as the codebase changes
+- connect raw activity to higher-level memory
+- support eventual reflection into `project-spec`
 
-## MCP Apps Notes
+Convergence still matters, but here it happens after recording and analysis:
 
-- `brain_dashboard` keeps the existing `stdio` workflow intact. No extra port or web server is required.
-- Hosts with MCP Apps support can render the dashboard resource inline through `ui://project-brain/dashboard`.
-- Hosts without MCP Apps support still get:
-  - a compact text summary
-  - the full dashboard payload in `structuredContent`
-  - a `resource_link` to `ui://project-brain/dashboard`
+- raw signals become structured memory
+- structured memory accumulates across execution
+- stable memory is promoted into `project-spec`
 
-## Example Flow
+## Quick Start
 
-1. Initialize the project identity with `brain_init`
-2. Ingest confirmed project memory or GPT-structured results with `brain_ingest_memory`
-3. Ask `brain_context` for lightweight day-to-day coding context
-4. Ask `brain_change_context` for detailed change execution context
-5. Use `brain_dashboard` to inspect the current project memory and status
+Start the local HTTP service:
 
-## GPT Collaboration Loop
-
-Use GPT for convergence, not as the memory system and not as the executor.
-
-Standard loop:
-
-1. Use GPT to discuss and converge
-2. Ask GPT for a ProjectBrain-structured result
-3. Confirm manually
-4. Call `brain_ingest_memory`
-5. Use `brain_change_context` for execution
-
-Recommended GPT prompt:
-
-```text
-把我们刚才的讨论整理成可写入 ProjectBrain 的结构化结论，并标明 type。不要解释，只输出 JSON。
+```bash
+npx -y @myczh/project-brain
 ```
 
-Example ingest request:
+If you see `Project Brain HTTP server running at http://127.0.0.1:3210`, the service started successfully.
+
+You can also run it in development mode:
+
+```bash
+npm run dev
+```
+
+## Local HTTP API
+
+Project Brain exposes a minimal local HTTP server for custom clients and UI experiments.
+
+Default address:
+
+```text
+http://127.0.0.1:3210
+```
+
+Current endpoints:
+
+- `GET /health`
+- `GET /api/dashboard`
+- `GET /api/context`
+- `GET /api/changes/:changeId/context`
+- `POST /api/init`
+- `POST /api/memory/ingest`
+- `PUT /api/project-spec`
+
+## Example Ingest
 
 ```json
 {
@@ -197,40 +137,25 @@ Example ingest request:
     "type": "decision",
     "confirmed_by_user": true,
     "payload": {
-      "title": "Separate identity and governance",
-      "decision": "Keep manifest as identity anchor and move stable rules to project-spec",
-      "rationale": "This avoids overlap between identity and governance layers",
+      "title": "Use analysis-driven memory workflow",
+      "decision": "Treat Project Brain as the durable memory and process-recording layer for AI collaboration",
+      "rationale": "Analysis is required to capture project signals, preserve execution history, and reflect stable conclusions into spec",
       "scope": "project"
     }
   }
 }
 ```
 
-`brain_ingest_memory` is intentionally single-record and create-first:
+`brain_ingest_memory` stays deliberately single-record and create-first:
 
 - it validates the payload
-- it routes the record to the right internal ProjectBrain layer
-- it rejects silent overwrites of existing project spec or change spec
-- it keeps execution agents dependent on ProjectBrain context, not GPT chat history
+- it routes the record to the right memory layer
+- it rejects silent overwrites of existing `project-spec` or `change-spec`
+- it keeps durable truth inside Project Brain instead of leaving it in chat history
 
-## OpenSpec Compatibility
+## Spec
 
-Project Brain does not depend on OpenSpec, but it can read change intent from:
-
-- `openspec/changes/<change-id>/proposal.md`
-- `openspec/changes/<change-id>.md`
-
-Compatibility is read-only in this version. Project Brain keeps its own memory layers for identity, stable rules, decisions, and progress.
-
-## Local Development
-
-```bash
-git clone https://github.com/myczh-1/project-brain-mcp
-cd project-brain-mcp
-pnpm install
-pnpm build
-pnpm dev
-```
+The current project-level spec lives in [docs/project-brain-spec.md](/Users/huanghe/Documents/project/node/ProjectBrain/docs/project-brain-spec.md).
 
 ## License
 

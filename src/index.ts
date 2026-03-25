@@ -1,4 +1,4 @@
-import { main } from './app/mcpMain.js';
+import { main } from './app/serverMain.js';
 
 main().catch(error => {
   console.error('Fatal error:', error);

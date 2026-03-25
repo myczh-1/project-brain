@@ -11,9 +11,8 @@
     "README.md", "LICENSE"
   ],
   "scripts": {
-    "dev": "tsx watch src/app/mcpMain.ts",
-    "dev:mcp": "tsx watch src/app/mcpMain.ts",
-    "dev:http": "tsx src/app/serverMain.ts",
+    "dev": "tsx watch src/app/serverMain.ts",
+    "dev:http": "tsx watch src/app/serverMain.ts",
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },
@@ -25,9 +24,7 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.10.2",
     "tsx": "^4.19.2",
