@@ -3,8 +3,10 @@ import { readProjectSpec } from '../../core/storage/projectSpec.js';
 import { readDecisions } from '../../core/storage/decisions.js';
 import { readProgress } from '../../core/storage/progress.js';
 import { readMilestones } from '../../core/storage/milestones.js';
+import { readNotes } from '../../core/storage/notes.js';
 import { parseLog } from '../../core/git/parseLog.js';
 import { calculateHotPaths } from '../../core/git/hotPaths.js';
+import { generateContextText } from '../../core/understanding/contextTemplate.js';
 export interface ProjectContextInput {
   repo_path?: string;
 }
@@ -57,6 +59,56 @@ export interface ProjectContextOutput {
     }[];
   };
   should_run_deep_analysis: boolean;
+  context_text: string;
+  structured: {
+    project_identity: {
+      project_name: string;
+      summary: string;
+      repo_type: string;
+      primary_stack: string[];
+      long_term_goal?: string;
+    };
+    stable_rules: {
+      product_goal: string;
+      non_goals: string[];
+      architecture_rules: string[];
+      coding_rules: string[];
+      agent_rules: string[];
+    } | null;
+    recent_decisions: {
+      id: string;
+      title: string;
+      rationale: string;
+      scope: string;
+      created_at: string;
+    }[];
+    execution_state: {
+      recent_progress: {
+        summary: string;
+        status?: string;
+        blockers?: string[];
+        confidence: string;
+        date: string;
+      }[];
+      milestones: {
+        name: string;
+        status: string;
+        confidence?: string;
+      }[];
+    };
+    code_evidence: {
+      last_commit: {
+        message: string;
+        time: string;
+        author: string;
+      } | null;
+      hot_paths: {
+        path: string;
+        change_count: number;
+      }[];
+    };
+    should_run_deep_analysis: boolean;
+  };
 }
 
 export async function projectContext(input: ProjectContextInput): Promise<ProjectContextOutput> {
@@ -67,10 +119,11 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
   const decisions = readDecisions(cwd).slice(-5).reverse();
   const progress = readProgress(cwd).slice(-5).reverse();
   const milestones = readMilestones(cwd);
+  const notes = readNotes(cwd);
 
   // Read only last 5 commits for quick focus inference
   const recentCommits = parseLog(5, cwd);
-  const hotPaths = calculateHotPaths(recentCommits, cwd);
+  const hotPaths = calculateHotPaths(recentCommits);
   
   // Determine if deep analysis is needed
   // Heuristic: if last commit was >24h ago, suggest deep analysis
@@ -81,7 +134,7 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
     shouldRunDeepAnalysis = hoursSinceLastCommit > 24;
   }
 
-  return {
+  const structured = {
     project_identity: {
       project_name: manifest.project_name,
       summary: manifest.summary,
@@ -133,5 +186,22 @@ export async function projectContext(input: ProjectContextInput): Promise<Projec
       })),
     },
     should_run_deep_analysis: shouldRunDeepAnalysis,
+  };
+
+  const contextText = generateContextText({
+    manifest,
+    recentCommits,
+    notes,
+    focus: null,
+    progress,
+    decisions,
+    milestones,
+    nextActions: [],
+  });
+
+  return {
+    ...structured,
+    context_text: contextText,
+    structured,
   };
 }
