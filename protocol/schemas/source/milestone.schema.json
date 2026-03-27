@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-brain.dev/protocol/v0/schemas/source/milestone.schema.json",
+  "title": "Project Brain Milestone",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "status"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["not_started", "in_progress", "completed"] },
+    "confidence": { "type": "string", "enum": ["low", "mid", "high"] },
+    "completion": { "type": "string", "enum": ["low", "mid", "high"] },
+    "detected_at": { "type": "string", "format": "date-time" },
+    "last_updated": { "type": "string", "format": "date-time" }
+  }
+}

@@ -3,8 +3,42 @@
   "version": "0.0.3",
   "description": "Project memory and execution context engine for AI coding agents",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./core-protocol": {
+      "types": "./dist/packages/core-protocol/src/index.d.ts",
+      "import": "./dist/packages/core-protocol/src/index.js"
+    },
+    "./mode-embedded": {
+      "types": "./dist/packages/mode-embedded/src/index.d.ts",
+      "import": "./dist/packages/mode-embedded/src/index.js"
+    },
+    "./mode-service": {
+      "types": "./dist/packages/mode-service/src/index.d.ts",
+      "import": "./dist/packages/mode-service/src/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/packages/runtime/src/index.d.ts",
+      "import": "./dist/packages/runtime/src/index.js"
+    },
+    "./context": {
+      "types": "./dist/packages/context/src/index.d.ts",
+      "import": "./dist/packages/context/src/index.js"
+    },
+    "./transport-http": {
+      "types": "./dist/packages/transport-http/src/index.d.ts",
+      "import": "./dist/packages/transport-http/src/index.js"
+    },
+    "./transport-mcp": {
+      "types": "./dist/packages/transport-mcp/src/index.d.ts",
+      "import": "./dist/packages/transport-mcp/src/index.js"
+    }
+  },
   "bin": {
-    "project-brain": "./dist/index.js"
+    "project-brain": "./dist/src/index.js"
   },
   "files": [
     "dist",

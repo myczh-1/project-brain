@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-brain.dev/protocol/v0/schemas/source/progress.schema.json",
+  "title": "Project Brain Progress Entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "date", "summary", "confidence"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "date": { "type": "string", "format": "date-time" },
+    "summary": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["planned", "in_progress", "blocked", "done"] },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "related_change_id": { "type": "string" },
+    "confidence": { "type": "string", "enum": ["low", "mid", "high"] }
+  }
+}

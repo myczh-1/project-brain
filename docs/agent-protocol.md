@@ -61,6 +61,7 @@ Create or adopt a change record.
 
 Preferred:
 
+- `brain_start_work` for the lowest-friction default path
 - `brain_create_change` for new implementation work
 - `brain_update_change` when continuing an existing change
 
@@ -79,6 +80,7 @@ Write development traces into Project Brain while work is ongoing.
 
 Use:
 
+- `brain_checkpoint` for the lowest-friction in-progress checkpoint path
 - `brain_log_decision` for concrete choices with rationale
 - `brain_record_progress` for execution updates, blockers, or milestone movement
 - `brain_capture_note` for raw observations, unresolved fragments, or follow-ups
@@ -96,6 +98,7 @@ Reflect development reality back into project context.
 
 Use one or more of:
 
+- `brain_finish_work`
 - `brain_recent_activity`
 - `brain_estimate_progress`
 - `brain_suggest_actions`
@@ -124,6 +127,9 @@ Then update durable records if warranted:
 ### Write and record
 
 - `brain_create_change`: create a structured change record
+- `brain_start_work`: create or adopt the active change and optionally record initial progress
+- `brain_checkpoint`: update the active change and optionally record progress and a note
+- `brain_finish_work`: finalize the change and return reflection outputs
 - `brain_update_change`: update an existing change
 - `brain_log_decision`: record a decision with rationale
 - `brain_record_progress`: record progress or milestone movement
@@ -156,12 +162,11 @@ An assistant is considered compliant with the Project Brain protocol if it does 
 For a medium-sized implementation, the assistant should roughly behave like this:
 
 1. Call `brain_context`.
-2. Call `brain_create_change`.
+2. Call `brain_start_work`.
 3. Implement.
-4. Call `brain_log_decision` if a concrete tradeoff is chosen.
-5. Call `brain_record_progress` at a meaningful checkpoint.
-6. Call `brain_recent_activity` or `brain_analyze`.
-7. Call `brain_update_change` to reflect the latest state.
+4. Call `brain_checkpoint` at a meaningful checkpoint.
+5. Call `brain_log_decision` if a concrete tradeoff is chosen.
+6. Call `brain_finish_work`.
 
 ## Status
 

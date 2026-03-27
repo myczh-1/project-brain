@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-brain.dev/protocol/v0/schemas/source/note.schema.json",
+  "title": "Project Brain Note",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "time", "tags", "note"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "time": { "type": "string", "format": "date-time" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "note": { "type": "string", "minLength": 1 },
+    "related_change_id": { "type": "string" }
+  }
+}

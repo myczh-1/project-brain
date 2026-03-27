@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-brain.dev/protocol/v0/schemas/source/decision.schema.json",
+  "title": "Project Brain Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "decision",
+    "rationale",
+    "alternatives_considered",
+    "scope",
+    "created_at"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "decision": { "type": "string", "minLength": 1 },
+    "rationale": { "type": "string", "minLength": 1 },
+    "alternatives_considered": { "type": "array", "items": { "type": "string" } },
+    "scope": { "type": "string", "enum": ["project", "change", "module"] },
+    "related_change_id": { "type": "string" },
+    "supersedes": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}

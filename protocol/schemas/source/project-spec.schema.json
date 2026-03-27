@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-brain.dev/protocol/v0/schemas/source/project-spec.schema.json",
+  "title": "Project Brain Project Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "product_goal",
+    "non_goals",
+    "architecture_rules",
+    "coding_rules",
+    "agent_rules",
+    "source",
+    "updated_at"
+  ],
+  "properties": {
+    "product_goal": { "type": "string", "minLength": 1 },
+    "non_goals": { "type": "array", "items": { "type": "string" } },
+    "architecture_rules": { "type": "array", "items": { "type": "string" } },
+    "coding_rules": { "type": "array", "items": { "type": "string" } },
+    "agent_rules": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "string", "minLength": 1 },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

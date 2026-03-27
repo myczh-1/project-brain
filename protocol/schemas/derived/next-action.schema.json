@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-brain.dev/protocol/v0/schemas/derived/next-action.schema.json",
+  "title": "Project Brain Next Action",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "description",
+    "priority_score",
+    "reasoning",
+    "impact",
+    "effort",
+    "confidence",
+    "suggested_by",
+    "created_at"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "priority_score": { "type": "number" },
+    "reasoning": { "type": "string", "minLength": 1 },
+    "impact": { "type": "number" },
+    "effort": { "type": "number" },
+    "confidence": { "type": "string", "enum": ["low", "mid", "high"] },
+    "related_milestone": { "type": "string" },
+    "blocking_issues": { "type": "array", "items": { "type": "string" } },
+    "suggested_by": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}

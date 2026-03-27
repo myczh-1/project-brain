@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-brain.dev/protocol/v0/schemas/source/manifest.schema.json",
+  "title": "Project Brain Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project_name",
+    "summary",
+    "repo_type",
+    "primary_stack",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "project_name": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string" },
+    "repo_type": { "type": "string", "minLength": 1 },
+    "primary_stack": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "long_term_goal": { "type": "string" },
+    "locale": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}
