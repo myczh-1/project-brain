@@ -4,15 +4,14 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { createContextService } from '../../context/src/index.js';
-import { createRuntimeService } from '../../runtime/src/index.js';
+import { createContextService, createRuntimeService } from '@myczh/project-brain/application';
 
 function toTextContent(payload: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(payload, null, 2) }];
 }
 
-function toStructuredContent(payload: unknown) {
-  return payload as unknown as Record<string, unknown>;
+function toStructuredContent(payload: unknown): Record<string, unknown> {
+  return payload as Record<string, unknown>;
 }
 
 function createProjectBrainMcpServer() {
@@ -479,9 +478,12 @@ function createProjectBrainMcpServer() {
       },
     },
     async ({ repo_path, memory }) => {
+      // The zod schema validates structure, but ingestMemory performs its own
+      // deep validation on the payload. Widen through unknown at the boundary.
+      const validatedMemory: unknown = memory;
       const result = await ingestMemory({
         repo_path,
-        memory: memory as unknown as Parameters<typeof ingestMemory>[0]['memory'],
+        memory: validatedMemory as Parameters<typeof ingestMemory>[0]['memory'],
       });
 
       return {

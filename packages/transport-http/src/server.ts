@@ -1,10 +1,9 @@
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { URL } from 'node:url';
+import { createMcpHttpHandler } from '@myczh/project-brain/transport-mcp';
 import { createHttpApiHandlers } from './api.js';
-import { createMcpHttpHandler } from '../../transport-mcp/src/index.js';
 import { renderUiCss, renderUiHtml, renderUiJs } from './ui.js';
 
-type JsonRecord = Record<string, unknown>;
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 interface RouteDefinition {
@@ -104,7 +103,7 @@ function sendNoContent(res: ServerResponse, statusCode: number) {
   res.end();
 }
 
-function sendJson(res: ServerResponse, statusCode: number, body: JsonRecord) {
+function sendJson(res: ServerResponse, statusCode: number, body: unknown) {
   const payload = JSON.stringify(body, null, 2);
   res.writeHead(statusCode, {
     'content-type': 'application/json; charset=utf-8',
@@ -130,7 +129,7 @@ function sendText(
   res.end(body);
 }
 
-async function readJsonBody(req: IncomingMessage): Promise<JsonRecord> {
+async function readJsonBody(req: IncomingMessage): Promise<unknown> {
   validateJsonRequest(req);
 
   const chunks: Buffer[] = [];
@@ -158,7 +157,7 @@ async function readJsonBody(req: IncomingMessage): Promise<JsonRecord> {
     throw new HttpError(400, 'JSON body must be an object.');
   }
 
-  return parsed as JsonRecord;
+  return parsed as Record<string, unknown>;
 }
 
 function validateJsonRequest(req: IncomingMessage) {
@@ -358,7 +357,7 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
         include_deep_analysis: parseBoolean(url.searchParams.get('include_deep_analysis')),
         recent_commits: parseNumber(url.searchParams.get('recent_commits')),
       });
-      sendJson(res, 200, result as unknown as JsonRecord);
+      sendJson(res, 200, result);
     },
   },
   {
@@ -370,7 +369,7 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
       const result = await deps.api.getProjectContext({
         repo_path: getRepoPath(url),
       });
-      sendJson(res, 200, result as unknown as JsonRecord);
+      sendJson(res, 200, result);
     },
   },
   {
@@ -385,7 +384,7 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
         change_id: changeId,
         recent_commits: parseNumber(url.searchParams.get('recent_commits')),
       });
-      sendJson(res, 200, result as unknown as JsonRecord);
+      sendJson(res, 200, result);
     },
   },
   {
@@ -395,8 +394,8 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
     match: matchExact('/api/init'),
     async handle({ req, res }, _params, deps) {
       const body = await readJsonBody(req);
-      const result = await deps.api.initializeProject(body as unknown as Parameters<typeof deps.api.initializeProject>[0]);
-      sendJson(res, 200, result as unknown as JsonRecord);
+      const result = await deps.api.initializeProject(body as Parameters<typeof deps.api.initializeProject>[0]);
+      sendJson(res, 200, result);
     },
   },
   {
@@ -406,8 +405,8 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
     match: matchExact('/api/memory/ingest'),
     async handle({ req, res }, _params, deps) {
       const body = await readJsonBody(req);
-      const result = await deps.api.ingestMemory(body as unknown as Parameters<typeof deps.api.ingestMemory>[0]);
-      sendJson(res, 200, result as unknown as JsonRecord);
+      const result = await deps.api.ingestMemory(body as Parameters<typeof deps.api.ingestMemory>[0]);
+      sendJson(res, 200, result);
     },
   },
   {
@@ -417,8 +416,8 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
     match: matchExact('/api/project-spec'),
     async handle({ req, res }, _params, deps) {
       const body = await readJsonBody(req);
-      const result = await deps.api.updateProjectSpec(body as unknown as Parameters<typeof deps.api.updateProjectSpec>[0]);
-      sendJson(res, 200, result as unknown as JsonRecord);
+      const result = await deps.api.updateProjectSpec(body as Parameters<typeof deps.api.updateProjectSpec>[0]);
+      sendJson(res, 200, result);
     },
   },
 ];
