@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { main } from './serverMain.js';
 
 main().catch(error => {

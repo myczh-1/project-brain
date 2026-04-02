@@ -41,7 +41,13 @@
     "project-brain": "./dist/packages/app/src/cli.js"
   },
   "files": [
-    "dist",
+    "dist/packages/app",
+    "dist/packages/core",
+    "dist/packages/infra-fs",
+    "dist/packages/mode-embedded",
+    "dist/packages/protocol",
+    "dist/packages/transport-http",
+    "dist/packages/transport-mcp",
     "README.md",
     "LICENSE"
   ],
