@@ -4,7 +4,8 @@ import {
   type ChangeContextInput,
   type DashboardToolInput,
   type ProjectContextInput,
-} from '@myczh/project-brain/application';
+} from '@myczh/project-brain/core';
+import { createFsStorage, createFsGit } from '@myczh/project-brain/infra-fs';
 
 export interface HttpApiHandlers {
   initializeProject(
@@ -22,8 +23,10 @@ export interface HttpApiHandlers {
 }
 
 export function createHttpApiHandlers(): HttpApiHandlers {
-  const runtime = createRuntimeService();
-  const context = createContextService();
+  const storage = createFsStorage();
+  const git = createFsGit();
+  const runtime = createRuntimeService(storage);
+  const context = createContextService(storage, git);
   return {
     initializeProject: runtime.initializeProject,
     getDashboard: context.getDashboard,

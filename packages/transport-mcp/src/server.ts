@@ -4,7 +4,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { createContextService, createRuntimeService } from '@myczh/project-brain/application';
+import { createContextService, createRuntimeService } from '@myczh/project-brain/core';
+import { createFsStorage, createFsGit } from '@myczh/project-brain/infra-fs';
 
 function toTextContent(payload: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(payload, null, 2) }];
@@ -15,8 +16,10 @@ function toStructuredContent(payload: unknown): Record<string, unknown> {
 }
 
 function createProjectBrainMcpServer() {
-  const runtime = createRuntimeService();
-  const context = createContextService();
+  const storage = createFsStorage();
+  const git = createFsGit();
+  const runtime = createRuntimeService(storage);
+  const context = createContextService(storage, git);
   const {
     initializeProject: projectInit,
     ingestMemory,

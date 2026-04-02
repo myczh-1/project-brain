@@ -1,4 +1,5 @@
-import { createRuntime, createRuntimeService } from '@myczh/project-brain/application';
+import { createRuntime, createRuntimeService } from '@myczh/project-brain/core';
+import { createFsStorage } from '@myczh/project-brain/infra-fs';
 import type {
   RuntimeCommand,
   RuntimeCommandResult,
@@ -7,7 +8,7 @@ import type {
   RuntimeQuery,
   RuntimeQueryResult,
   RuntimeService,
-} from '@myczh/project-brain/application';
+} from '@myczh/project-brain/core';
 
 export type {
   RuntimeCommand,
@@ -28,9 +29,10 @@ export interface EmbeddedMode {
 
 export function createEmbeddedMode(
   defaultRepoPath?: string,
-  service: RuntimeService = createRuntimeService()
+  storage = createFsStorage(),
+  service: RuntimeService = createRuntimeService(storage)
 ): EmbeddedMode {
-  const runtime = createRuntime(defaultRepoPath, service);
+  const runtime = createRuntime(storage, defaultRepoPath, service);
 
   return {
     handle: runtime.handle,
