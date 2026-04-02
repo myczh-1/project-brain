@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import type { GitPort } from '../../ports/git.js';
 import type { ChangeSpec, StoragePort } from '../../ports/storage.js';
@@ -88,12 +87,12 @@ function readOpenSpecChange(changeId: string, storage: StoragePort, cwd?: string
   ];
 
   for (const candidate of candidates) {
-    if (!fs.existsSync(candidate)) {
+    if (!storage.fileExists(candidate)) {
       continue;
     }
 
-    if (fs.statSync(candidate).isFile()) {
-      const parsed = parseBulletSections(fs.readFileSync(candidate, 'utf-8'));
+    if (storage.isFile(candidate)) {
+      const parsed = parseBulletSections(storage.readTextFile(candidate));
       return {
         id: changeId,
         title: parsed.title || changeId,
@@ -111,8 +110,8 @@ function readOpenSpecChange(changeId: string, storage: StoragePort, cwd?: string
     }
 
     const proposalPath = path.join(candidate, 'proposal.md');
-    if (fs.existsSync(proposalPath)) {
-      const parsed = parseBulletSections(fs.readFileSync(proposalPath, 'utf-8'));
+    if (storage.fileExists(proposalPath)) {
+      const parsed = parseBulletSections(storage.readTextFile(proposalPath));
       return {
         id: changeId,
         title: parsed.title || changeId,

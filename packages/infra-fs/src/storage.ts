@@ -19,6 +19,7 @@ import { appendProgress, readProgress } from './storage/progress.js';
 import { getProjectSpecPath, readProjectSpec, writeProjectSpec } from './storage/projectSpec.js';
 import { ensureBrainDir, getBrainDir, brainDirExists } from './storage/brainDir.js';
 import { getRepoRootPath } from './storage/repoRoot.js';
+import * as fs from 'fs';
 
 export function createFsStorage(): StoragePort {
   return {
@@ -56,5 +57,18 @@ export function createFsStorage(): StoragePort {
     writeNextActions,
     getRepoRootPath,
     atomicWriteFile,
+    fileExists(filePath: string): boolean {
+      return fs.existsSync(filePath);
+    },
+    isFile(filePath: string): boolean {
+      try {
+        return fs.statSync(filePath).isFile();
+      } catch {
+        return false;
+      }
+    },
+    readTextFile(filePath: string): string {
+      return fs.readFileSync(filePath, 'utf-8');
+    },
   };
 }

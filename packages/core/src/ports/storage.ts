@@ -138,4 +138,11 @@ export interface StoragePort {
   getRepoRootPath(cwd?: string): string;
 
   atomicWriteFile(filePath: string, content: string): void;
+
+  /** Check if a file or directory exists at the given absolute path. */
+  fileExists(filePath: string): boolean;
+  /** Check if the given absolute path is a regular file (not a directory). */
+  isFile(filePath: string): boolean;
+  /** Read a text file at the given absolute path. Returns the file contents as a UTF-8 string. */
+  readTextFile(filePath: string): string;
 }
