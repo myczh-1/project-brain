@@ -1,7 +1,7 @@
 import type { Manifest, StoragePort } from '../ports/storage.js';
 
 export interface ProjectInitInput {
-  repo_path?: string;
+  repo_path: string;
   answers?: {
     project_name?: string;
     summary?: string;
@@ -32,7 +32,7 @@ function normalizeArray(values?: string[]): string[] {
 }
 
 export async function projectInit(input: ProjectInitInput, storage: StoragePort): Promise<ProjectInitOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const hasManifest = storage.manifestExists(cwd);
   const existingManifest = hasManifest ? storage.readManifest(cwd) : null;
 

@@ -5,7 +5,7 @@ import { recommendNextActions } from '../../understanding/index.js';
 
 export interface ChangeContextInput {
   change_id: string;
-  repo_path?: string;
+  repo_path: string;
   recent_commits?: number;
 }
 
@@ -152,7 +152,7 @@ function buildRisks(
 }
 
 export async function changeContext(input: ChangeContextInput, storage: StoragePort, git: GitPort): Promise<ChangeContextOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const recentCommitCount = input.recent_commits || 30;
   const manifest = storage.readManifest(cwd) || storage.buildFallbackManifest(cwd);
 

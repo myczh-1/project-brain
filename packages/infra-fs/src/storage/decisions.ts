@@ -34,7 +34,7 @@ export function readDecisions(cwd?: string): Decision[] {
       date: string;
     }>;
 
-    return legacy.map((item, index) => ({
+    const migrated: Decision[] = legacy.map((item, index) => ({
       id: `legacy-decision-${index + 1}`,
       title: item.decision.slice(0, 80),
       decision: item.decision,
@@ -43,6 +43,14 @@ export function readDecisions(cwd?: string): Decision[] {
       scope: 'project',
       created_at: item.date,
     }));
+
+    // Persist migration: write ndjson, rename legacy to .bak
+    ensureBrainDir(cwd);
+    const ndjsonContent = migrated.map(d => JSON.stringify(d)).join('\n') + (migrated.length > 0 ? '\n' : '');
+    fs.writeFileSync(decisionsPath, ndjsonContent, 'utf-8');
+    fs.renameSync(legacyPath, `${legacyPath}.bak`);
+
+    return migrated;
   }
   const content = fs.readFileSync(decisionsPath, 'utf-8');
   const lines = content.trim().split('\n').filter(line => line.trim());

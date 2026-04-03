@@ -44,15 +44,15 @@ export type RuntimeCommand =
   | { type: 'ingest_memory'; input: IngestMemoryInput };
 
 export type RuntimeQuery =
-  | { type: 'get_manifest'; repo_path?: string }
-  | { type: 'get_project_spec'; repo_path?: string }
-  | { type: 'get_change'; change_id: string; repo_path?: string }
-  | { type: 'list_changes'; repo_path?: string }
-  | { type: 'list_decisions'; repo_path?: string }
-  | { type: 'list_notes'; repo_path?: string }
-  | { type: 'list_progress'; repo_path?: string }
-  | { type: 'list_milestones'; repo_path?: string }
-  | { type: 'get_state'; repo_path?: string };
+  | { type: 'get_manifest'; repo_path: string }
+  | { type: 'get_project_spec'; repo_path: string }
+  | { type: 'get_change'; change_id: string; repo_path: string }
+  | { type: 'list_changes'; repo_path: string }
+  | { type: 'list_decisions'; repo_path: string }
+  | { type: 'list_notes'; repo_path: string }
+  | { type: 'list_progress'; repo_path: string }
+  | { type: 'list_milestones'; repo_path: string }
+  | { type: 'get_state'; repo_path: string };
 
 export type RuntimeMessage = RuntimeCommand | RuntimeQuery;
 

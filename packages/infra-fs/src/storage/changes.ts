@@ -47,7 +47,7 @@ export function generateChangeId(title: string): string {
 }
 
 export function getChangePath(changeId: string, cwd?: string): string {
-  return path.join(getChangesDir(cwd), `${sanitizeChangeId(changeId)}.json`);
+  return path.join(getChangesDir(cwd), `${changeId}.json`);
 }
 
 export function changeExists(changeId: string, cwd?: string): boolean {

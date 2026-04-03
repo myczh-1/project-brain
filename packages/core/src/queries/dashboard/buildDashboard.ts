@@ -8,7 +8,7 @@ import type { DashboardData, DashboardMemoryListSection } from './types.js';
 import type { Milestone, ProgressEntry, Decision } from '../../ports/storage.js';
 
 export interface BuildDashboardInput {
-  repo_path?: string;
+  repo_path: string;
   include_deep_analysis?: boolean;
   recent_commits?: number;
 }
@@ -62,50 +62,42 @@ function normalizeDecisions(decisions: Decision[]): Decision[] {
   return decisions.map(decision => ({ ...decision, rationale: decision.rationale || '' }));
 }
 
-export async function buildDashboardData(input: BuildDashboardInput, storage: StoragePort, git: GitPort): Promise<DashboardData> {
-  const cwd = input.repo_path || process.cwd();
-  const repoRoot = storage.getRepoRootPath(cwd);
-  const repoPath = repoRoot;
-  const includeDeepAnalysis = input.include_deep_analysis !== false;
-  const recentCommits = input.recent_commits || 50;
-  const generatedAt = new Date().toISOString();
-  const manifest = storage.readManifest(repoPath);
+function buildUninitializedDashboard(repoPath: string, includeDeepAnalysis: boolean, generatedAt: string): DashboardData {
+  return {
+    overview: {
+      project_name: repoPath.split('/').pop() || repoPath,
+      summary: 'Project Brain has not been initialized for this repository yet.',
+      goals: [],
+      current_focus: { area: 'Unknown', confidence: 'low' },
+      overall_completion: null,
+      confidence: 'low',
+    },
+    activity: {
+      summary: 'Project Brain can start recording memory without `brain_init`, but the identity anchor is still empty.',
+      recent_commits: [],
+      hot_paths: [],
+      last_active_at: null,
+      staleness_risk: 'unknown',
+    },
+    memory: {
+      long_term: { manifest: null, project_spec: null },
+      progress_memory: buildMemorySection('Progress Memory', [], 'No explicit progress entries recorded yet.', 'Record progress or ingest a progress memory entry to start tracking execution.'),
+      decision_memory: buildMemorySection('Decision Memory', [], 'No decisions recorded yet.', 'Ingest a decision record to start preserving rationale.'),
+      milestone_memory: buildMemorySection('Milestone Memory', [], 'No milestones inferred or recorded yet.', 'Milestones appear after analysis or explicit milestone recording.'),
+      note_memory: buildMemorySection('Note Memory', [], 'No notes captured yet.', 'Ingest a note record to store raw observations.'),
+    },
+    next_actions: [],
+    meta: {
+      generated_at: generatedAt,
+      repo_path: repoPath,
+      is_initialized: false,
+      include_deep_analysis: includeDeepAnalysis,
+      degradation_notice: 'This dashboard is available as structured text and can be rendered by any HTTP client or custom web UI.',
+    },
+  };
+}
 
-  if (!manifest) {
-    return {
-      overview: {
-        project_name: repoPath.split('/').pop() || repoPath,
-        summary: 'Project Brain has not been initialized for this repository yet.',
-        goals: [],
-        current_focus: { area: 'Unknown', confidence: 'low' },
-        overall_completion: null,
-        confidence: 'low',
-      },
-      activity: {
-        summary: 'Project Brain can start recording memory without `brain_init`, but the identity anchor is still empty.',
-        recent_commits: [],
-        hot_paths: [],
-        last_active_at: null,
-        staleness_risk: 'unknown',
-      },
-      memory: {
-        long_term: { manifest: null, project_spec: null },
-        progress_memory: buildMemorySection('Progress Memory', [], 'No explicit progress entries recorded yet.', 'Record progress or ingest a progress memory entry to start tracking execution.'),
-        decision_memory: buildMemorySection('Decision Memory', [], 'No decisions recorded yet.', 'Ingest a decision record to start preserving rationale.'),
-        milestone_memory: buildMemorySection('Milestone Memory', [], 'No milestones inferred or recorded yet.', 'Milestones appear after analysis or explicit milestone recording.'),
-        note_memory: buildMemorySection('Note Memory', [], 'No notes captured yet.', 'Ingest a note record to store raw observations.'),
-      },
-      next_actions: [],
-      meta: {
-        generated_at: generatedAt,
-        repo_path: repoPath,
-        is_initialized: false,
-        include_deep_analysis: includeDeepAnalysis,
-        degradation_notice: 'This dashboard is available as structured text and can be rendered by any HTTP client or custom web UI.',
-      },
-    };
-  }
-
+async function buildFullDashboard(manifest: Manifest, repoPath: string, includeDeepAnalysis: boolean, recentCommits: number, generatedAt: string, storage: StoragePort, git: GitPort): Promise<DashboardData> {
   const projectSpec = storage.readProjectSpec(repoPath);
   const progressEntries = storage.readProgress(repoPath);
   const decisions = normalizeDecisions(storage.readDecisions(repoPath));
@@ -158,6 +150,22 @@ export async function buildDashboardData(input: BuildDashboardInput, storage: St
       degradation_notice: 'The dashboard response is portable across HTTP clients and custom web UI consumers.',
     },
   };
+}
+
+export async function buildDashboardData(input: BuildDashboardInput, storage: StoragePort, git: GitPort): Promise<DashboardData> {
+  const cwd = input.repo_path;
+  const repoRoot = storage.getRepoRootPath(cwd);
+  const repoPath = repoRoot;
+  const includeDeepAnalysis = input.include_deep_analysis !== false;
+  const recentCommits = input.recent_commits || 50;
+  const generatedAt = new Date().toISOString();
+  const manifest = storage.readManifest(repoPath);
+
+  if (!manifest) {
+    return buildUninitializedDashboard(repoPath, includeDeepAnalysis, generatedAt);
+  }
+
+  return buildFullDashboard(manifest, repoPath, includeDeepAnalysis, recentCommits, generatedAt, storage, git);
 }
 
 export function buildDashboardSummary(data: DashboardData): string {

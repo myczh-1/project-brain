@@ -38,23 +38,23 @@ export function createRuntime(storage: StoragePort, defaultRepoPath?: string, se
         case 'ingest_memory':
           return service.ingestMemory(withDefaultRepoPath(message.input, defaultRepoPath));
         case 'get_manifest':
-          return service.getManifest(message.repo_path || defaultRepoPath);
+          return service.getManifest(message.repo_path);
         case 'get_project_spec':
-          return service.getProjectSpec(message.repo_path || defaultRepoPath);
+          return service.getProjectSpec(message.repo_path);
         case 'get_change':
-          return service.getChange(message.change_id, message.repo_path || defaultRepoPath);
+          return service.getChange(message.change_id, message.repo_path);
         case 'list_changes':
-          return service.listChanges(message.repo_path || defaultRepoPath);
+          return service.listChanges(message.repo_path);
         case 'list_decisions':
-          return service.listDecisions(message.repo_path || defaultRepoPath);
+          return service.listDecisions(message.repo_path);
         case 'list_notes':
-          return service.listNotes(message.repo_path || defaultRepoPath);
+          return service.listNotes(message.repo_path);
         case 'list_progress':
-          return service.listProgress(message.repo_path || defaultRepoPath);
+          return service.listProgress(message.repo_path);
         case 'list_milestones':
-          return service.listMilestones(message.repo_path || defaultRepoPath);
+          return service.listMilestones(message.repo_path);
         case 'get_state':
-          return service.getState(message.repo_path || defaultRepoPath);
+          return service.getState(message.repo_path);
         default:
           return assertNever(message);
       }
@@ -62,8 +62,8 @@ export function createRuntime(storage: StoragePort, defaultRepoPath?: string, se
   };
 }
 
-function withDefaultRepoPath<T extends { repo_path?: string }>(input: T, defaultRepoPath?: string): T {
-  return input.repo_path || !defaultRepoPath ? input : { ...input, repo_path: defaultRepoPath };
+function withDefaultRepoPath<T extends { repo_path: string }>(input: T, defaultRepoPath?: string): T {
+  return input.repo_path ? input : { ...input, repo_path: defaultRepoPath || process.cwd() };
 }
 
 function assertNever(value: never): never {

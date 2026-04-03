@@ -60,7 +60,7 @@ type MemoryPayload =
   | ProgressPayload;
 
 export interface IngestMemoryInput {
-  repo_path?: string;
+  repo_path: string;
   memory: {
     type: MemoryType;
     payload: MemoryPayload;
@@ -359,7 +359,7 @@ const MEMORY_HANDLERS: Record<MemoryType, MemoryHandler> = {
 };
 
 export async function ingestMemory(input: IngestMemoryInput, storage: StoragePort): Promise<IngestMemoryOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const type = input.memory.type;
   const payload = input.memory.payload;
   const handler = MEMORY_HANDLERS[type as keyof typeof MEMORY_HANDLERS];

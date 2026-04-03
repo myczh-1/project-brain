@@ -1,7 +1,7 @@
 import type { Decision, StoragePort } from '../ports/storage.js';
 
 export interface LogDecisionInput {
-  repo_path?: string;
+  repo_path: string;
   decision: {
     id?: string;
     title: string;
@@ -17,27 +17,29 @@ export interface LogDecisionInput {
 export interface LogDecisionOutput {
   status: 'ok';
   decision: Decision;
+  warnings?: string[];
 }
 
 function normalize(values?: string[]): string[] {
   return Array.isArray(values) ? values.map(v => v.trim()).filter(Boolean) : [];
 }
 
-function validateDecisionInput(title: string, decisionText: string, rationale: string): void {
+function validateDecisionInput(title: string, decisionText: string, rationale: string): string[] {
   const combined = `${title} ${decisionText} ${rationale}`.toLowerCase();
   const weakSignals = ['todo', 'idea', 'maybe', 'think about', '进度', '完成了', 'todo:', 'note'];
   if (weakSignals.some(signal => combined.includes(signal))) {
-    throw new Error('Decision must record a concrete choice with rationale, not a note, progress update, or tentative idea.');
+    return ['Decision text contains weak signals (todo, idea, maybe, etc.). Consider using brain_capture_note or brain_record_progress instead.'];
   }
+  return [];
 }
 
 export async function logDecision(input: LogDecisionInput, storage: StoragePort): Promise<LogDecisionOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const title = input.decision.title.trim();
   const decisionText = input.decision.decision.trim();
   const rationale = input.decision.rationale.trim();
 
-  validateDecisionInput(title, decisionText, rationale);
+  const warnings = validateDecisionInput(title, decisionText, rationale);
 
   const decision: Decision = {
     id: input.decision.id?.trim() || `decision-${Date.now()}`,
@@ -56,5 +58,6 @@ export async function logDecision(input: LogDecisionInput, storage: StoragePort)
   return {
     status: 'ok',
     decision,
+    warnings: warnings.length > 0 ? warnings : undefined,
   };
 }

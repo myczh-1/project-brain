@@ -4,7 +4,7 @@ export interface CaptureNoteInput {
   note: string;
   tags?: string[];
   related_change_id?: string;
-  repo_path?: string;
+  repo_path: string;
 }
 
 export interface CaptureNoteOutput {
@@ -13,7 +13,7 @@ export interface CaptureNoteOutput {
 }
 
 export async function projectCaptureNote(input: CaptureNoteInput, storage: StoragePort): Promise<CaptureNoteOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
 
   const note: Note = {
     id: storage.generateNoteId(),

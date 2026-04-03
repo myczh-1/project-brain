@@ -3,7 +3,7 @@ import type { StoragePort } from '../../ports/storage.js';
 import { generateContextText } from '../../understanding/index.js';
 
 export interface ProjectContextInput {
-  repo_path?: string;
+  repo_path: string;
 }
 
 export interface ProjectContextOutput {
@@ -55,59 +55,11 @@ export interface ProjectContextOutput {
   };
   should_run_deep_analysis: boolean;
   context_text: string;
-  structured: {
-    project_identity: {
-      project_name: string;
-      summary: string;
-      repo_type: string;
-      primary_stack: string[];
-      long_term_goal?: string;
-    };
-    stable_rules: {
-      product_goal: string;
-      non_goals: string[];
-      architecture_rules: string[];
-      coding_rules: string[];
-      agent_rules: string[];
-    } | null;
-    recent_decisions: {
-      id: string;
-      title: string;
-      rationale: string;
-      scope: string;
-      created_at: string;
-    }[];
-    execution_state: {
-      recent_progress: {
-        summary: string;
-        status?: string;
-        blockers?: string[];
-        confidence: string;
-        date: string;
-      }[];
-      milestones: {
-        name: string;
-        status: string;
-        confidence?: string;
-      }[];
-    };
-    code_evidence: {
-      last_commit: {
-        message: string;
-        time: string;
-        author: string;
-      } | null;
-      hot_paths: {
-        path: string;
-        change_count: number;
-      }[];
-    };
-    should_run_deep_analysis: boolean;
-  };
+  structured: Omit<ProjectContextOutput, 'context_text' | 'structured'>;
 }
 
 export async function projectContext(input: ProjectContextInput, storage: StoragePort, git: GitPort): Promise<ProjectContextOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
 
   const manifest = storage.readManifest(cwd) || storage.buildFallbackManifest(cwd);
   const projectSpec = storage.readProjectSpec(cwd);

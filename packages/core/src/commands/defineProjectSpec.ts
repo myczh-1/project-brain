@@ -1,7 +1,7 @@
 import type { ProjectSpec, StoragePort } from '../ports/storage.js';
 
 export interface DefineProjectSpecInput {
-  repo_path?: string;
+  repo_path: string;
   spec: {
     product_goal: string;
     non_goals?: string[];
@@ -23,7 +23,7 @@ function normalize(values?: string[]): string[] {
 }
 
 export async function defineProjectSpec(input: DefineProjectSpecInput, storage: StoragePort): Promise<DefineProjectSpecOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const existing = storage.readProjectSpec(cwd);
   const now = new Date().toISOString();
 

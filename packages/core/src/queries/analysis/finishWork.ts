@@ -5,7 +5,7 @@ import { brainAnalyze } from './brainAnalyze.js';
 import { suggestNextActionsTool } from './suggestNextActions.js';
 
 export interface FinishWorkInput {
-  repo_path?: string;
+  repo_path: string;
   change_id: string;
   final_status?: 'done' | 'dropped';
   summary_patch?: CheckpointWorkInput['change_patch'];
@@ -33,7 +33,7 @@ export interface FinishWorkOutput {
 }
 
 export async function finishWork(input: FinishWorkInput, storage: StoragePort, git: GitPort): Promise<FinishWorkOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const finalStatus = input.final_status || 'done';
 
   const checkpoint = await checkpointWork({

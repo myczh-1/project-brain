@@ -35,18 +35,25 @@ export function inferFocus(commits: Commit[], hotPaths: HotPath[]): FocusInferen
   return { focus, confidence };
 }
 
-export function inferMilestoneSignals(commits: Commit[], _hotPaths: HotPath[]): MilestoneSignal[] {
+export interface MilestonePattern {
+  keywords: string[];
+  name: string;
+  threshold: number;
+}
+
+export const DEFAULT_MILESTONE_PATTERNS: MilestonePattern[] = [
+  { keywords: ['http', 'api', 'server', 'transport'], name: 'HTTP Service Implementation', threshold: 2 },
+  { keywords: ['test', 'testing', 'spec'], name: 'Testing Infrastructure', threshold: 3 },
+  { keywords: ['deploy', 'release', 'publish'], name: 'Deployment Ready', threshold: 2 },
+  { keywords: ['refactor', 'cleanup', 'restructure'], name: 'Code Refactoring', threshold: 3 },
+  { keywords: ['docs', 'documentation', 'readme'], name: 'Documentation', threshold: 2 },
+];
+
+export function inferMilestoneSignals(commits: Commit[], _hotPaths: HotPath[], patterns: MilestonePattern[] = DEFAULT_MILESTONE_PATTERNS): MilestoneSignal[] {
   const signals: MilestoneSignal[] = [];
   const recentMessages = commits.slice(0, 10).map(c => c.message.toLowerCase());
-  const milestonePatterns = [
-    { keywords: ['http', 'api', 'server', 'transport'], name: 'HTTP Service Implementation', threshold: 2 },
-    { keywords: ['test', 'testing', 'spec'], name: 'Testing Infrastructure', threshold: 3 },
-    { keywords: ['deploy', 'release', 'publish'], name: 'Deployment Ready', threshold: 2 },
-    { keywords: ['refactor', 'cleanup', 'restructure'], name: 'Code Refactoring', threshold: 3 },
-    { keywords: ['docs', 'documentation', 'readme'], name: 'Documentation', threshold: 2 },
-  ];
 
-  for (const pattern of milestonePatterns) {
+  for (const pattern of patterns) {
     let matchCount = 0;
     for (const message of recentMessages) {
       if (pattern.keywords.some(kw => message.includes(kw))) matchCount++;

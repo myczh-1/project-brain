@@ -3,7 +3,7 @@ import type { GitPort, Commit, HotPath } from '../../ports/git.js';
 export interface RecentActivityInput {
   limit?: number;
   since_days?: number;
-  repo_path?: string;
+  repo_path: string;
 }
 
 export interface RecentActivityOutput {
@@ -13,7 +13,7 @@ export interface RecentActivityOutput {
 }
 
 export async function projectRecentActivity(input: RecentActivityInput, git: GitPort): Promise<RecentActivityOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const commits = input.since_days ? git.parseLogSinceDays(input.since_days, cwd) : git.parseLog(input.limit || 50, cwd);
   const hotPaths = git.calculateHotPaths(commits);
 

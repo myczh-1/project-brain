@@ -4,7 +4,7 @@ import { recordProgress, type RecordProgressInput } from './recordProgress.js';
 import { updateChange, type UpdateChangeInput } from './updateChange.js';
 
 export interface CheckpointWorkInput {
-  repo_path?: string;
+  repo_path: string;
   change_id: string;
   change_patch?: UpdateChangeInput['patch'];
   progress?: RecordProgressInput['progress'];
@@ -24,7 +24,7 @@ export interface CheckpointWorkOutput {
 }
 
 export async function checkpointWork(input: CheckpointWorkInput, storage: StoragePort): Promise<CheckpointWorkOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
 
   if (!input.change_patch && !input.progress && !input.note) {
     throw new Error('brain_checkpoint requires at least one of change_patch, progress, or note.');

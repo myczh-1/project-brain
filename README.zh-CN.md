@@ -17,6 +17,12 @@
 
 在此模式下，无需启动服务器。AI 助手通过遵循既定协议直接读写 `.project-brain/` 目录。这通常与 OpenSpec 配合使用，适用于单人开发者 + AI 的工作流。
 
+## 如何选择安装方式
+
+- 已经在使用 OpenSpec：运行 `npx -y @myczh/project-brain setup`，选择“轻量模式”。当仓库中已存在 `openspec/` 时，这是推荐路径。
+- 需要给 Cursor、Claude Desktop、OpenCode 或本地 Dashboard 提供 MCP/HTTP 接入：运行 `npx -y @myczh/project-brain setup`，选择“服务模式”。
+- 两者都需要：在 setup 中选择“两者都启用”。日常仍以轻量模式为主，HTTP 服务用于 MCP 客户端接入。
+
 ## 快速开始 (服务模式)
 
 1. 启动服务：
@@ -35,6 +41,13 @@
 ## 快速开始 (轻量模式)
 
 详细指南请参阅 [docs/guide-openspec-integration.zh-CN.md](./docs/guide-openspec-integration.zh-CN.md)。简而言之，AI 助手读取 `protocol/` 中的定义，并直接向 `.project-brain/` 写入结构化数据。
+
+## CLI 命令
+
+- `project-brain`：启动 HTTP/MCP 服务。
+- `project-brain setup`：检测仓库上下文，推荐轻量模式或服务模式，并初始化 `.project-brain/`。
+- `project-brain doctor`：检查当前仓库和本地服务是否已准备好。
+- `project-brain init`：为当前仓库创建最小可用的 `.project-brain/` 初始化结构。
 
 ## 核心数据模型
 

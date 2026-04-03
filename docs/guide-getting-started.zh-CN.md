@@ -10,25 +10,26 @@
 
 ## 安装
 
-您可以不安装直接运行 Project Brain，也可以将其作为依赖项进行安装。
+建议先走 setup 流程：
 
-### 快速运行
-无需安装直接执行：
 ```bash
-npx -y @myczh/project-brain
+npx -y @myczh/project-brain setup
 ```
 
-### 全局安装
-全局安装以便在任何地方使用 `project-brain` 命令：
+这个命令会检测仓库是否已经使用 OpenSpec，推荐“轻量模式”或“服务模式”，并初始化 `.project-brain/`。
+
+如果您更希望安装成可复用命令，也可以：
+
 ```bash
 npm install -g @myczh/project-brain
+project-brain setup
 ```
 
-### 开发依赖安装
-在项目中安装以锁定版本：
-```bash
-npm install --save-dev @myczh/project-brain
-```
+### 模式选择建议
+
+- 如果仓库中已经有 `openspec/`，请选择“轻量模式”。这是 Project Brain 与 OpenSpec 配合时的推荐路径。
+- 如果您希望给 AI 客户端提供 MCP/HTTP 接入，请选择“服务模式”。
+- 如果两者都需要，请在 setup 时选择“两者都启用”。
 
 ## 启动服务
 

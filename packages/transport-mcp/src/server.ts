@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -6,6 +7,8 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { createContextService, createRuntimeService } from '@myczh/project-brain/core';
 import { createFsStorage, createFsGit } from '@myczh/project-brain/infra-fs';
+
+const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf-8')) as { version: string };
 
 function toTextContent(payload: unknown) {
   return [{ type: 'text' as const, text: JSON.stringify(payload, null, 2) }];
@@ -44,7 +47,7 @@ function createProjectBrainMcpServer() {
   const server = new McpServer(
     {
       name: 'project-brain',
-      version: '0.0.3',
+      version: packageJson.version,
     },
     {
       capabilities: {

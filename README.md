@@ -18,6 +18,12 @@ Run `npx @myczh/project-brain` to start a full server with an HTTP API and an MC
 
 In this mode, no server is required. AI assistants read and write to the `.project-brain/` directory directly by following the established protocol. This is typically used alongside OpenSpec for single-developer + AI workflows.
 
+## Choose Your Setup
+
+- Already using OpenSpec: use `npx -y @myczh/project-brain setup` and choose Lightweight mode. This is the recommended path when OpenSpec is already present in the repository.
+- Need MCP/HTTP access for Cursor, Claude Desktop, OpenCode, or a local dashboard: use `npx -y @myczh/project-brain setup` and choose Service mode.
+- Want both: choose Both during setup. Lightweight mode stays the default day-to-day repository workflow, while the service remains available for MCP clients.
+
 ## Quick Start (Service Mode)
 
 1. Start the service:
@@ -36,6 +42,13 @@ In this mode, no server is required. AI assistants read and write to the `.proje
 ## Quick Start (Lightweight Mode)
 
 For detailed instructions, see [docs/guide-openspec-integration.md](./docs/guide-openspec-integration.md). In brief, the AI assistant reads the definitions in `protocol/` and writes structured data to `.project-brain/` directly.
+
+## CLI Commands
+
+- `project-brain`: Start the HTTP/MCP service.
+- `project-brain setup`: Detect repository context, recommend Lightweight vs Service mode, and initialize `.project-brain/`.
+- `project-brain doctor`: Check whether the repository and local service are ready.
+- `project-brain init`: Create the minimal `.project-brain/` setup for the current repository.
 
 ## Core Data Model
 

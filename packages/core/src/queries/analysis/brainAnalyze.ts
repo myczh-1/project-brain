@@ -11,7 +11,7 @@ import type { Commit, HotPath } from '../../ports/git.js';
 import type { Milestone, NextAction } from '../../ports/storage.js';
 
 export interface BrainAnalyzeInput {
-  repo_path?: string;
+  repo_path: string;
   depth?: 'quick' | 'full';
   recent_commits?: number;
 }
@@ -40,7 +40,7 @@ export interface BrainAnalyzeOutput {
 }
 
 export async function brainAnalyze(input: BrainAnalyzeInput, storage: StoragePort, git: GitPort): Promise<BrainAnalyzeOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const depth = input.depth || 'full';
   const recentCommitsCount = input.recent_commits || 50;
 

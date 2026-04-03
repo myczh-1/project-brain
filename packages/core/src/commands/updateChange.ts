@@ -1,7 +1,7 @@
 import type { ChangeSpec, StoragePort } from '../ports/storage.js';
 
 export interface UpdateChangeInput {
-  repo_path?: string;
+  repo_path: string;
   change_id: string;
   patch: {
     title?: string;
@@ -27,7 +27,7 @@ function normalize(values?: string[]): string[] | undefined {
 }
 
 export async function updateChange(input: UpdateChangeInput, storage: StoragePort): Promise<UpdateChangeOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const existing = storage.readChange(input.change_id, cwd);
   if (!existing) {
     throw new Error(`Change not found: ${input.change_id}`);

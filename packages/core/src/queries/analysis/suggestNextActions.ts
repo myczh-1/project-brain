@@ -5,7 +5,7 @@ import { inferMilestoneSignals, recommendNextActions, type ActionRecommendation 
 export interface SuggestNextActionsInput {
   limit?: number;
   filter_by_milestone?: string;
-  repo_path?: string;
+  repo_path: string;
   recent_commits?: number;
 }
 
@@ -15,7 +15,7 @@ export interface SuggestNextActionsOutput {
 }
 
 export async function suggestNextActionsTool(input: SuggestNextActionsInput, storage: StoragePort, git: GitPort): Promise<SuggestNextActionsOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const limit = input.limit || 5;
   const recentCommitsCount = input.recent_commits || 50;
 

@@ -188,8 +188,8 @@ function parseNumber(value: string | null): number | undefined {
   return parsed;
 }
 
-function getRepoPath(url: URL): string | undefined {
-  return url.searchParams.get('repo_path') || undefined;
+function getRepoPath(url: URL): string {
+  return url.searchParams.get('repo_path') || process.cwd();
 }
 
 function getAllowedOriginsFromEnv() {
@@ -393,8 +393,9 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
     description: 'Initialize or update the project identity anchor.',
     match: matchExact('/api/init'),
     async handle({ req, res }, _params, deps) {
-      const body = await readJsonBody(req);
-      const result = await deps.api.initializeProject(body as Parameters<typeof deps.api.initializeProject>[0]);
+      const body = await readJsonBody(req) as Record<string, unknown>;
+      if (!body.repo_path) body.repo_path = process.cwd();
+      const result = await deps.api.initializeProject(body as unknown as Parameters<typeof deps.api.initializeProject>[0]);
       sendJson(res, 200, result);
     },
   },
@@ -404,8 +405,9 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
     description: 'Ingest one structured memory record.',
     match: matchExact('/api/memory/ingest'),
     async handle({ req, res }, _params, deps) {
-      const body = await readJsonBody(req);
-      const result = await deps.api.ingestMemory(body as Parameters<typeof deps.api.ingestMemory>[0]);
+      const body = await readJsonBody(req) as Record<string, unknown>;
+      if (!body.repo_path) body.repo_path = process.cwd();
+      const result = await deps.api.ingestMemory(body as unknown as Parameters<typeof deps.api.ingestMemory>[0]);
       sendJson(res, 200, result);
     },
   },
@@ -415,8 +417,9 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
     description: 'Update the stable project spec.',
     match: matchExact('/api/project-spec'),
     async handle({ req, res }, _params, deps) {
-      const body = await readJsonBody(req);
-      const result = await deps.api.updateProjectSpec(body as Parameters<typeof deps.api.updateProjectSpec>[0]);
+      const body = await readJsonBody(req) as Record<string, unknown>;
+      if (!body.repo_path) body.repo_path = process.cwd();
+      const result = await deps.api.updateProjectSpec(body as unknown as Parameters<typeof deps.api.updateProjectSpec>[0]);
       sendJson(res, 200, result);
     },
   },

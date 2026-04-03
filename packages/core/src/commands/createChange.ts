@@ -1,7 +1,7 @@
 import type { ChangeSpec, StoragePort } from '../ports/storage.js';
 
 export interface CreateChangeInput {
-  repo_path?: string;
+  repo_path: string;
   change: {
     id?: string;
     title: string;
@@ -27,9 +27,13 @@ function normalize(values?: string[]): string[] {
 }
 
 export async function createChange(input: CreateChangeInput, storage: StoragePort): Promise<CreateChangeOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const now = new Date().toISOString();
   const id = input.change.id?.trim() || storage.generateChangeId(input.change.title);
+
+  if (id.length > 80) {
+    throw new Error('Change ID exceeds maximum length of 80 characters');
+  }
 
   const change: ChangeSpec = {
     id,

@@ -10,25 +10,26 @@ Before starting, ensure you have the following installed:
 
 ## Installation
 
-You can run Project Brain without installation or install it as a dependency.
+Start with the setup flow:
 
-### Quick Run
-Execute without installation:
 ```bash
-npx -y @myczh/project-brain
+npx -y @myczh/project-brain setup
 ```
 
-### Global Installation
-Install globally to use the `project-brain` command anywhere:
+This command detects whether the repository already uses OpenSpec, recommends Lightweight or Service mode, and initializes `.project-brain/`.
+
+If you prefer to install a reusable command, you can also run:
+
 ```bash
 npm install -g @myczh/project-brain
+project-brain setup
 ```
 
-### Development Dependency
-Install in your project to lock the version:
-```bash
-npm install --save-dev @myczh/project-brain
-```
+### Mode Guidance
+
+- If the repository already has `openspec/`, choose Lightweight mode. This is the recommended way to pair Project Brain with OpenSpec.
+- If you want MCP/HTTP access for AI clients, choose Service mode.
+- If you want both, choose Both during setup.
 
 ## Starting the Service
 

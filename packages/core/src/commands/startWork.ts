@@ -4,7 +4,7 @@ import { recordProgress, type RecordProgressInput } from './recordProgress.js';
 import { updateChange } from './updateChange.js';
 
 export interface StartWorkInput {
-  repo_path?: string;
+  repo_path: string;
   change_id?: string;
   create_change?: CreateChangeInput['change'];
   initial_progress?: RecordProgressInput['progress'];
@@ -69,7 +69,7 @@ async function resolveChange(cwd: string, input: StartWorkInput, storage: Storag
 }
 
 export async function startWork(input: StartWorkInput, storage: StoragePort): Promise<StartWorkOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
   const resolved = await resolveChange(cwd, input, storage);
 
   const progressResult = input.initial_progress

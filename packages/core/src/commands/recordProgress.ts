@@ -2,7 +2,7 @@ import type { Milestone, ProgressEntry, StoragePort } from '../ports/storage.js'
 
 export interface RecordProgressInput {
   type: 'progress' | 'milestone';
-  repo_path?: string;
+  repo_path: string;
   progress?: {
     summary: string;
     status?: 'planned' | 'in_progress' | 'blocked' | 'done';
@@ -25,7 +25,7 @@ export interface RecordProgressOutput {
 }
 
 export async function recordProgress(input: RecordProgressInput, storage: StoragePort): Promise<RecordProgressOutput> {
-  const cwd = input.repo_path || process.cwd();
+  const cwd = input.repo_path;
 
   switch (input.type) {
     case 'progress': {
