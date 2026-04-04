@@ -5,6 +5,7 @@ import { finishWork, type FinishWorkInput, type FinishWorkOutput } from './analy
 import { projectRecentActivity, type RecentActivityInput, type RecentActivityOutput } from './analysis/recentActivity.js';
 import { suggestNextActionsTool, type SuggestNextActionsInput, type SuggestNextActionsOutput } from './analysis/suggestNextActions.js';
 import { changeContext, type ChangeContextInput, type ChangeContextOutput } from './context/getChangeContext.js';
+import { contextBudgetPlan, type ContextBudgetPlanInput, type ContextBudgetPlanOutput } from './context/getContextBudgetPlan.js';
 import { projectContext, type ProjectContextInput, type ProjectContextOutput } from './context/getProjectContext.js';
 import { brainDashboard, type DashboardToolInput, type DashboardToolOutput } from './dashboard/getDashboard.js';
 
@@ -12,6 +13,7 @@ export interface ContextService {
   getDashboard(input: DashboardToolInput): Promise<DashboardToolOutput>;
   getProjectContext(input: ProjectContextInput): Promise<ProjectContextOutput>;
   getChangeContext(input: ChangeContextInput): Promise<ChangeContextOutput>;
+  getContextBudgetPlan(input: ContextBudgetPlanInput): Promise<ContextBudgetPlanOutput>;
   getRecentActivity(input: RecentActivityInput): Promise<RecentActivityOutput>;
   suggestNextActions(input: SuggestNextActionsInput): Promise<SuggestNextActionsOutput>;
   analyze(input: BrainAnalyzeInput): Promise<BrainAnalyzeOutput>;
@@ -23,6 +25,7 @@ export function createContextService(storage: StoragePort, git: GitPort): Contex
     getDashboard: (input) => brainDashboard(input, storage, git),
     getProjectContext: (input) => projectContext(input, storage, git),
     getChangeContext: (input) => changeContext(input, storage, git),
+    getContextBudgetPlan: (input) => contextBudgetPlan(input, storage, git),
     getRecentActivity: (input) => projectRecentActivity(input, git),
     suggestNextActions: (input) => suggestNextActionsTool(input, storage, git),
     analyze: (input) => brainAnalyze(input, storage, git),

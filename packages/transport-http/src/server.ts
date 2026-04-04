@@ -188,6 +188,12 @@ function parseNumber(value: string | null): number | undefined {
   return parsed;
 }
 
+function parseRetrievalEntrypoint(value: string | null): 'standard' | 'investigation' | undefined {
+  if (value === null || value.trim() === '') return undefined;
+  if (value === 'standard' || value === 'investigation') return value;
+  throw new HttpError(400, `Expected retrieval_entrypoint to be "standard" or "investigation", received "${value}".`);
+}
+
 function getRepoPath(url: URL): string {
   return url.searchParams.get('repo_path') || process.cwd();
 }
@@ -341,6 +347,8 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
           repo_path: 'Optional repository path for read routes.',
           recent_commits: 'Optional commit window for dashboard or change context.',
           include_deep_analysis: 'Optional boolean toggle for dashboard depth.',
+          retrieval_entrypoint: 'Optional for change context: standard or investigation.',
+          task: 'Optional for change context: task text used to expand historical term hints.',
         },
         endpoints: ROUTES.filter(route => route.path.startsWith('/api')),
       });
@@ -383,6 +391,8 @@ const ROUTE_HANDLERS: RouteHandlerDefinition[] = [
         repo_path: getRepoPath(url),
         change_id: changeId,
         recent_commits: parseNumber(url.searchParams.get('recent_commits')),
+        retrieval_entrypoint: parseRetrievalEntrypoint(url.searchParams.get('retrieval_entrypoint')),
+        task: url.searchParams.get('task') || undefined,
       });
       sendJson(res, 200, result);
     },

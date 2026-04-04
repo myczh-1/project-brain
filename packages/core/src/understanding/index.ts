@@ -8,3 +8,5 @@ export { detectLocale, getTemplates, templates } from './i18n.js';
 export type { I18nTemplates } from './i18n.js';
 export { recommendNextActions } from './recommendActions.js';
 export type { ActionRecommendation } from './recommendActions.js';
+export { buildHistoryEvidenceChain, evaluateRetrievalConfidence, expandRetrievalTerms, resolveCommitWindow, textMatchesTerms } from './retrievalStrategy.js';
+export type { RetrievalEntrypoint } from './retrievalStrategy.js';

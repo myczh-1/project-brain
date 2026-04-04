@@ -52,6 +52,17 @@ For a coding assistant or skill:
 6. Write directly into `.project-brain/`.
 7. Optionally validate against the schema set.
 
+### Retrieval Entrypoints For Lightweight Workflows
+
+Lightweight mode should distinguish **content layers** from **retrieval entrypoints**:
+
+- Content layers: `Global Brief -> Domain Brief -> Change Brief -> Evidence Pack`
+- Standard entrypoint: `overview -> domain -> change -> evidence`
+- Investigation entrypoint: `cold memory -> history links -> current mapping -> change -> evidence`
+
+When handling legacy bugs, regressions, compatibility surprises, or historical wording issues, use the investigation entrypoint first.
+Do not force a standard flow if rationale evidence is thin.
+
 Safe default:
 
 - if you are not sure whether your view of `.project-brain/*` is current, read first and then write
@@ -60,6 +71,13 @@ Read guidance:
 
 - for `project-spec.json`, `manifest.json`, `changes/<id>.json`, and `milestones.json`, read the current snapshot before replacing it
 - for `progress.ndjson`, `decisions.ndjson`, and `notes.ndjson`, read relevant recent state when continuing existing work so new entries do not assume outdated context
+
+Investigation guidance (lightweight mode):
+
+- expand search terms with aliases, old terminology, and previous module names
+- scan cold memory (`notes.ndjson`, `decisions.ndjson`, `progress.ndjson`, `changes/*.json`)
+- output a short evidence chain (`issue -> note/decision -> migration/refactor -> current module`)
+- if no evidence is found, record why (`no historical record` vs `scope/budget not enough`)
 
 ## Example: Append A Decision
 

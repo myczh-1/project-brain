@@ -453,13 +453,17 @@ function createProjectBrainMcpServer() {
         repo_path: z.string().describe('Absolute path to the target project repository.'),
         change_id: z.string(),
         recent_commits: z.number().optional(),
+        retrieval_entrypoint: z.enum(['standard', 'investigation']).optional(),
+        task: z.string().optional(),
       },
     },
-    async ({ repo_path, change_id, recent_commits }) => {
+    async ({ repo_path, change_id, recent_commits, retrieval_entrypoint, task }) => {
       const result = await changeContext({
         repo_path,
         change_id,
         recent_commits,
+        retrieval_entrypoint,
+        task,
       });
 
       return {
