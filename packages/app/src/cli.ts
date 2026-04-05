@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { main } from './serverMain.js';
 import { parseCliArgs, printHelp, runDoctor, runInit, runSetup } from './setup.js';
 
 async function run() {
@@ -16,11 +15,9 @@ async function run() {
       await runInit();
       return;
     case 'help':
+    default:
       printHelp();
       return;
-    case 'serve':
-    default:
-      await main();
   }
 }
 

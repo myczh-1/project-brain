@@ -2,18 +2,30 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ES2022",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@myczh/project-brain": ["packages/core/src/index.ts"],
-      "@myczh/project-brain/protocol": ["packages/protocol/src/index.ts"],
-      "@myczh/project-brain/core": ["packages/core/src/index.ts"],
-      "@myczh/project-brain/infra-fs": ["packages/infra-fs/src/index.ts"],
-      "@myczh/project-brain/transport-http": ["packages/transport-http/src/index.ts"],
-      "@myczh/project-brain/transport-mcp": ["packages/transport-mcp/src/index.ts"],
-      "@myczh/project-brain/app": ["packages/app/src/index.ts"],
-      "@myczh/project-brain/mode-embedded": ["packages/mode-embedded/src/index.ts"]
+      "@myczh/project-brain": [
+        "packages/core/src/index.ts"
+      ],
+      "@myczh/project-brain/protocol": [
+        "packages/protocol/src/index.ts"
+      ],
+      "@myczh/project-brain/core": [
+        "packages/core/src/index.ts"
+      ],
+      "@myczh/project-brain/infra-fs": [
+        "packages/infra-fs/src/index.ts"
+      ],
+      "@myczh/project-brain/app": [
+        "packages/app/src/index.ts"
+      ],
+      "@myczh/project-brain/mode-embedded": [
+        "packages/mode-embedded/src/index.ts"
+      ]
     },
     "outDir": "./dist",
     "rootDir": ".",
@@ -26,6 +38,12 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["packages/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": [
+    "packages/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ]
 }
