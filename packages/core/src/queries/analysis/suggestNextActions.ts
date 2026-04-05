@@ -14,6 +14,7 @@ export interface SuggestNextActionsOutput {
   reasoning_summary: string;
 }
 
+/** @internal Internal composition helper; not part of the stable public API surface. */
 export async function suggestNextActionsTool(input: SuggestNextActionsInput, storage: StoragePort, git: GitPort): Promise<SuggestNextActionsOutput> {
   const cwd = input.repo_path;
   const limit = input.limit || 5;

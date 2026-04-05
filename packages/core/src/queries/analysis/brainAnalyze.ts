@@ -39,6 +39,7 @@ export interface BrainAnalyzeOutput {
   confidence: string;
 }
 
+/** @internal Internal composition helper; not part of the stable public API surface. */
 export async function brainAnalyze(input: BrainAnalyzeInput, storage: StoragePort, git: GitPort): Promise<BrainAnalyzeOutput> {
   const cwd = input.repo_path;
   const depth = input.depth || 'full';

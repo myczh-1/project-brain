@@ -10,6 +10,7 @@ export interface DashboardToolOutput {
   dashboard: DashboardData;
 }
 
+/** @internal Internal composition helper; not part of the stable public API surface. */
 export async function brainDashboard(input: DashboardToolInput, storage: StoragePort, git: GitPort): Promise<DashboardToolOutput> {
   const dashboard = await buildDashboardData(input, storage, git);
   return {
