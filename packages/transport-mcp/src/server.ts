@@ -7,6 +7,11 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { createContextService, createRuntimeService } from '@myczh/project-brain/core';
 import { createFsStorage, createFsGit } from '@myczh/project-brain/infra-fs';
+import { brainAnalyze } from '../../core/src/queries/analysis/brainAnalyze.js';
+import { finishWork } from '../../core/src/queries/analysis/finishWork.js';
+import { projectRecentActivity } from '../../core/src/queries/analysis/recentActivity.js';
+import { suggestNextActionsTool } from '../../core/src/queries/analysis/suggestNextActions.js';
+import { brainDashboard } from '../../core/src/queries/dashboard/getDashboard.js';
 
 const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf-8')) as { version: string };
 
@@ -37,11 +42,6 @@ function createProjectBrainMcpServer() {
   const {
     getChangeContext: changeContext,
     getProjectContext: projectContext,
-    getDashboard: brainDashboard,
-    getRecentActivity: projectRecentActivity,
-    suggestNextActions: suggestNextActionsTool,
-    analyze: brainAnalyze,
-    finishWork,
   } = context;
 
   const server = new McpServer(
@@ -76,7 +76,7 @@ function createProjectBrainMcpServer() {
         repo_path,
         include_deep_analysis,
         recent_commits,
-      });
+      }, storage, git);
 
       return {
         content: [{ type: 'text', text: result.summary }],
@@ -270,7 +270,7 @@ function createProjectBrainMcpServer() {
         final_progress,
         note,
         reflection,
-      });
+      }, storage, git);
 
       return {
         content: toTextContent(result),
@@ -539,7 +539,7 @@ function createProjectBrainMcpServer() {
         repo_path,
         limit,
         since_days,
-      });
+      }, git);
 
       return {
         content: [{ type: 'text', text: result.summary }],
@@ -565,7 +565,7 @@ function createProjectBrainMcpServer() {
         limit,
         filter_by_milestone,
         recent_commits,
-      });
+      }, storage, git);
 
       return {
         content: toTextContent(result),
@@ -589,7 +589,7 @@ function createProjectBrainMcpServer() {
         repo_path,
         depth,
         recent_commits,
-      });
+      }, storage, git);
 
       return {
         content: [{ type: 'text', text: result.summary }],

@@ -52,14 +52,6 @@ export type {
 export { createContextService } from './queries/index.js';
 export type { ContextService } from './queries/index.js';
 export type {
-  BrainAnalyzeInput,
-  BrainAnalyzeOutput,
-  FinishWorkInput,
-  FinishWorkOutput,
-  RecentActivityInput,
-  RecentActivityOutput,
-  SuggestNextActionsInput,
-  SuggestNextActionsOutput,
   ChangeContextInput,
   ChangeContextOutput,
   ContextBudgetPlanInput,
@@ -67,9 +59,6 @@ export type {
   BudgetMode,
   ProjectContextInput,
   ProjectContextOutput,
-  DashboardToolInput,
-  DashboardToolOutput,
-  DashboardData,
 } from './queries/index.js';
 
 export { createRuntimeService, createRuntime } from './runtime/index.js';
