@@ -23,6 +23,10 @@
     "./mode-embedded": {
       "types": "./dist/packages/mode-embedded/src/index.d.ts",
       "import": "./dist/packages/mode-embedded/src/index.js"
+    },
+    "./app": {
+      "types": "./dist/packages/app/src/index.d.ts",
+      "import": "./dist/packages/app/src/index.js"
     }
   },
   "bin": {
@@ -66,10 +70,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/myczh-1/project-brain-mcp.git"
+    "url": "git+https://github.com/myczh-1/project-brain.git"
   },
-  "homepage": "https://github.com/myczh-1/project-brain-mcp#readme",
+  "homepage": "https://github.com/myczh-1/project-brain#readme",
   "bugs": {
-    "url": "https://github.com/myczh-1/project-brain-mcp/issues"
+    "url": "https://github.com/myczh-1/project-brain/issues"
   }
 }

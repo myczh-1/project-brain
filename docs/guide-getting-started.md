@@ -16,7 +16,7 @@ Start with the setup flow:
 npx -y @myczh/project-brain setup
 ```
 
-This command detects whether the repository already uses OpenSpec, recommends Lightweight or Service mode, and initializes `.project-brain/`.
+This command initializes `.project-brain/` and prints the recommended file-based workflow.
 
 If you prefer to install a reusable command, you can also run:
 
@@ -25,76 +25,22 @@ npm install -g @myczh/project-brain
 project-brain setup
 ```
 
-### Mode Guidance
+## Using Your AI Assistant
 
-- If the repository already has `openspec/`, choose Lightweight mode. This is the recommended way to pair Project Brain with OpenSpec.
-- If you want MCP/HTTP access for AI clients, choose Service mode.
-- If you want both, choose Both during setup.
+Project Brain now works as a file-based protocol. Your AI assistant should:
 
-## Starting the Service
+1. Read `protocol/` to understand the data contract.
+2. Read the current `.project-brain/` state before making changes.
+3. Write structured JSON or NDJSON records directly into `.project-brain/`.
 
-Start the Project Brain server by running:
-```bash
-npx @myczh/project-brain
-# OR if globally installed:
-project-brain
-```
-
-Expected output:
-```text
-Project Brain HTTP server running at http://127.0.0.1:3210
-```
-
-### Verify the Service
-Confirm the server is active by checking the health endpoint:
-```bash
-curl http://127.0.0.1:3210/health
-```
-The response should be `{"status":"ok"}`.
-
-## Connecting Your AI Assistant
-
-Project Brain provides an MCP (Model Context Protocol) endpoint at `http://127.0.0.1:3210/mcp`.
-
-### Cursor
-1. Go to **Settings** -> **MCP Servers**.
-2. Add a new server with the URL: `http://127.0.0.1:3210/mcp`.
-
-### Claude Desktop
-First, start the Project Brain server in a terminal:
-```bash
-npx -y @myczh/project-brain
-```
-Then edit your `claude_desktop_config.json` file:
-```json
-{
-  "mcpServers": {
-    "project-brain": {
-      "url": "http://127.0.0.1:3210/mcp"
-    }
-  }
-}
-```
-*Note: Claude Desktop connects to the running HTTP server. Keep the terminal open while using Claude Desktop.*
-
-### OpenCode
-Edit your `opencode.json` file to include the MCP server:
-```json
-{
-  "mcpServers": {
-    "project-brain": {
-      "url": "http://127.0.0.1:3210/mcp"
-    }
-  }
-}
-```
+If you already use OpenSpec, pair it with Project Brain in the same repository and let the assistant use OpenSpec for planning while Project Brain records durable execution state.
 
 ## First Use — Initialize Project
 
-Once connected, your AI assistant can interact with Project Brain.
+Once initialized, your AI assistant can interact with Project Brain by reading and updating `.project-brain/` directly.
 
-1. **Initialize Project**: Call `brain_init`. This sets up the initial project identity and repository structure.
-2. **Check Context**: Call `brain_context` to verify the current state and see active goals.
+1. **Initialize Project**: Run `project-brain init` or `project-brain setup`.
+2. **Check Context**: Read `.project-brain/manifest.json`, `project-spec.json`, and recent NDJSON records.
 
 ## Daily Workflow
 
@@ -120,23 +66,14 @@ Project Brain stores all data in a `.project-brain/` directory at your repositor
 - `progress.ndjson`: Timeline of execution updates and blockers.
 - `milestones.json`: Broad phase and milestone tracking.
 
-You can inspect these files directly or view them through the Dashboard UI at `http://127.0.0.1:3210/ui`.
-
-## Configuration
-
-Environment variables can be used to customize the server:
-
-- `PROJECT_BRAIN_HOST`: The interface to bind the server to (default: `127.0.0.1`).
-- `PROJECT_BRAIN_PORT`: The port for the HTTP server (default: `3210`).
-- `PROJECT_BRAIN_ALLOWED_ORIGINS`: Comma-separated list of origins for CORS.
+You can inspect these files directly in the repository.
 
 ## Troubleshooting
 
-- **Port in Use**: If port 3210 is occupied, set a different `PROJECT_BRAIN_PORT`.
-- **CORS Errors**: Ensure your client origin is included in `PROJECT_BRAIN_ALLOWED_ORIGINS`.
-- **MCP Connection Fails**: Verify the server is running and the endpoint `/mcp` is accessible via browser or curl.
+- **Missing `.project-brain/`**: Run `project-brain setup`.
+- **Assistant writes invalid data**: Point it back to `protocol/` and ensure it reads before writing.
+- **Concurrent updates**: Re-read the current JSON snapshot files before replacing them.
 
 ## Next Steps
 
-- Consult the [Agent Integration Guide](./guide-agent-integration.md) for deep integration with specific AI assistants.
 - Review the [OpenSpec Integration Guide](./guide-openspec-integration.md) to learn how to use Project Brain with specification-driven development.

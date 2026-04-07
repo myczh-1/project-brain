@@ -37,7 +37,7 @@ describe('manifest storage', () => {
         project_name: 'Legacy Brain',
         one_liner: 'Legacy summary',
         tech_stack: ['TypeScript', 'Node.js'],
-        goals: ['Ship stable MCP', 'Preserve context'],
+        goals: ['Ship stable protocol workflow', 'Preserve context'],
         created_at: '2026-03-01T00:00:00.000Z',
       }),
       'utf-8'
@@ -48,7 +48,7 @@ describe('manifest storage', () => {
       summary: 'Legacy summary',
       repo_type: 'application',
       primary_stack: ['TypeScript', 'Node.js'],
-      long_term_goal: 'Ship stable MCP; Preserve context',
+      long_term_goal: 'Ship stable protocol workflow; Preserve context',
       locale: undefined,
       created_at: '2026-03-01T00:00:00.000Z',
       updated_at: '2026-03-01T00:00:00.000Z',

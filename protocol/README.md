@@ -10,7 +10,7 @@ This directory defines the protocol contract.
 The goal is simple:
 
 - a lightweight tool should be able to produce valid Project Brain state by understanding this protocol alone
-- HTTP, MCP, UI, and runtime packages are implementations over this contract, not the contract itself
+- Any host-side integrations are implementations over this contract, not the contract itself
 
 Protocol v0 is the current persisted-state contract.
 

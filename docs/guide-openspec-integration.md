@@ -12,13 +12,9 @@ OpenSpec manages the structured proposal-to-implementation workflow (propose →
   - OpenSpec changes can feed into Project Brain change records to maintain a unified history.
   - Project Brain's durable context (e.g., architecture rules, previous decisions) enriches OpenSpec's proposal and design phases.
 
-## Two Integration Approaches
+## Integration Approach
 
-### Service Mode
-Run `npx @myczh/project-brain` alongside OpenSpec skills. The AI assistant connects to Project Brain via its Model Context Protocol (MCP) server while using file-based skills for OpenSpec operations. This mode provides advanced features like automatic git activity analysis and dashboard visualization.
-
-### Lightweight Mode (no server)
-The AI assistant reads and writes the `.project-brain/` directory directly following the protocol, while simultaneously using OpenSpec skills. No HTTP server or background process is required. This approach is ideal for single-developer workflows and environments where running a local server is inconvenient.
+The AI assistant reads and writes the `.project-brain/` directory directly following the protocol, while simultaneously using OpenSpec skills. No HTTP server or background process is required. This approach is ideal for single-developer workflows and repository-local AI collaboration.
 
 ## Lightweight Mode Setup
 

@@ -2,8 +2,8 @@
 
 Lightweight mode does not mean:
 
-- start no HTTP server
-- skip MCP
+- use a weaker contract
+- skip validation and state hygiene
 - call a smaller runtime API
 
 Lightweight mode means:
@@ -117,15 +117,14 @@ It does not need to understand:
 - `createRuntime()`
 - `RuntimeService`
 - `createEmbeddedMode()`
-- HTTP routes
-- MCP tool registration
+- host-specific transports
 - dashboard or analysis internals
 
 Those belong to implementation layers.
 
 ## Current Repository Status
 
-At the moment, the repository still contains runtime packages and embedded adapters.
+The repository may contain runtime packages and embedded adapters.
 Those are valid implementation helpers, but they are not the intended lightweight contract surface.
 
 The intended lightweight contract surface is this protocol directory.
