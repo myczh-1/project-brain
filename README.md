@@ -10,20 +10,23 @@ Durable project memory for AI-assisted development.
 
 ## Quick Start
 
-For detailed instructions, see [docs/guide-openspec-integration.md](./docs/guide-openspec-integration.md). In brief, the AI assistant reads the definitions in `protocol/` and writes structured data to `.project-brain/` directly.
+Recommended installation path: ask your AI assistant to follow [docs/install-with-ai.md](./docs/install-with-ai.md).
 
-1. Initialize the repository:
+For detailed workflow instructions, see [docs/guide-openspec-integration.md](./docs/guide-openspec-integration.md). In brief, the AI assistant reads the definitions in `protocol/` and writes structured data to `.project-brain/` directly.
+
+1. Bootstrap the repository:
    ```bash
    npx -y @myczh/project-brain setup
    ```
-2. Point your AI tool at `protocol/`.
-3. Let the tool read and write `.project-brain/` directly.
+2. Ask your AI assistant to follow `docs/install-with-ai.md`.
+3. Let the assistant wire your tool to `project-brain stdio` and update the appropriate prompt/config files.
 
 ## CLI Commands
 
 - `project-brain setup`: Initialize `.project-brain/` and print file-based workflow guidance.
 - `project-brain doctor`: Check whether the repository is ready for the file-based workflow.
 - `project-brain init`: Create the minimal `.project-brain/` setup for the current repository.
+- `project-brain stdio`: Run the Project Brain tool surface over newline-delimited JSON on stdin/stdout.
 
 ## Core Data Model
 
@@ -59,6 +62,7 @@ Project Brain's main operations are exposed as library functions for tools or ho
 
 ## Integration Guides
 
+- [Install With AI](./docs/install-with-ai.md)
 - [Getting Started](./docs/guide-getting-started.md)
 - [OpenSpec Integration](./docs/guide-openspec-integration.md)
 
@@ -70,7 +74,7 @@ Project Brain follows a layered architecture:
 - **core**: Domain logic, commands, queries, and ports.
 - **infra-fs**: Filesystem implementation of storage and git ports.
 - **mode-embedded**: File-based integration helpers for repository-local workflows.
-- **app**: CLI entry point for setup, doctor, and initialization.
+- **app**: Bootstrap CLI and stdio entry point.
 
 ## Development
 

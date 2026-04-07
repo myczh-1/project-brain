@@ -52,9 +52,9 @@ function printHeader(title: string): void {
 }
 
 function printSetupSummary(facts: RepoFacts): void {
-  console.error('Selected: Lightweight protocol mode');
-  console.error('- AI tools read and write `.project-brain/` directly.');
-  console.error('- Use `protocol/` as the contract for valid records.');
+  console.error('Selected: Bootstrap mode');
+  console.error('- This CLI initializes Project Brain and points your AI assistant at the installer guide.');
+  console.error('- The recommended installation path is AI-assisted setup via the installer markdown.');
   if (facts.hasOpenSpec) {
     console.error('- OpenSpec detected, so this repository is ready for the recommended file-based workflow.');
   }
@@ -91,13 +91,13 @@ async function ensureBrainInitialized(facts: RepoFacts): Promise<void> {
 
 function printLightweightInstructions(facts: RepoFacts): void {
   console.error('');
-  console.error('Lightweight mode next steps');
-  console.error('- Keep using your AI tool in this repository; it should read and write `.project-brain/` directly.');
-  console.error('- Point the tool at `protocol/` when it needs the Project Brain contract.');
+  console.error('Bootstrap next steps');
+  console.error('- Open `docs/install-with-ai.md` and ask your AI assistant to complete the installation for this repository.');
+  console.error('- Recommended prompt: "Please follow docs/install-with-ai.md to install Project Brain in this repository."');
+  console.error('- Once configured, your AI tool should connect through `project-brain stdio` and follow `protocol/` when updating `.project-brain/`.');
   if (facts.hasOpenSpec) {
-    console.error('- OpenSpec detected: lightweight mode is the default recommendation for this repository.');
+    console.error('- OpenSpec detected: the installer should preserve the OpenSpec + Project Brain workflow.');
   }
-  console.error('- Recommended prompt line: "Use Project Brain as the durable memory layer for this repository. When updating .project-brain/, follow the protocol/ contract."');
 }
 
 function printDoctorLine(label: string, ok: boolean, detail: string): void {
@@ -138,10 +138,8 @@ export async function runDoctor(): Promise<void> {
   console.error('Suggested next step:');
   if (!facts.hasBrainDir) {
     console.error('- Run `project-brain setup` to initialize Project Brain for this repository.');
-  } else if (facts.hasOpenSpec) {
-    console.error('- Keep using the OpenSpec + Project Brain file-based workflow in this repository.');
   } else {
-    console.error('- Point your AI tool at `protocol/` and let it update `.project-brain/` directly.');
+    console.error('- Ask your AI assistant to follow `docs/install-with-ai.md` for the final tool integration.');
   }
 }
 
@@ -156,8 +154,8 @@ export function printHelp(): void {
   console.error('Project Brain');
   console.error('');
   console.error('Usage:');
-  console.error('  project-brain setup           Initialize .project-brain/ and print file-based workflow guidance');
-  console.error('  project-brain doctor          Check repository readiness for the file-based workflow');
+  console.error('  project-brain setup           Bootstrap this repository and point your AI assistant at the installer guide');
+  console.error('  project-brain doctor          Check repository readiness before or after AI-assisted installation');
   console.error('  project-brain init            Initialize .project-brain/ with a minimal manifest');
   console.error('  project-brain stdio           Run the runtime tool surface over newline-delimited JSON on stdin/stdout');
   console.error('  project-brain help            Show this help');

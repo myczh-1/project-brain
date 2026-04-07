@@ -18,14 +18,16 @@
 
 ## 快速开始
 
-详细指南请参阅 [docs/guide-openspec-integration.zh-CN.md](./docs/guide-openspec-integration.zh-CN.md)。简而言之，AI 助手读取 `protocol/` 中的定义，并直接向 `.project-brain/` 写入结构化数据。
+推荐安装路径：让您的 AI 助手直接按照 [docs/install-with-ai.zh-CN.md](./docs/install-with-ai.zh-CN.md) 完成接入。
 
-1. 初始化仓库：
+详细工作流说明请参阅 [docs/guide-openspec-integration.zh-CN.md](./docs/guide-openspec-integration.zh-CN.md)。简而言之，AI 助手读取 `protocol/` 中的定义，并直接向 `.project-brain/` 写入结构化数据。
+
+1. 先为仓库做 bootstrap：
    ```bash
    npx -y @myczh/project-brain setup
    ```
-2. 让 AI 工具读取 `protocol/`。
-3. 让它直接读写 `.project-brain/`。
+2. 让 AI 助手按照 `docs/install-with-ai.zh-CN.md` 完成接入。
+3. 让助手把目标工具接到 `project-brain stdio`，并更新对应的 prompt / 配置。
 
 写入这些文件时请保持严格结构:
 
@@ -35,9 +37,10 @@
 
 ## CLI 命令
 
-- `project-brain setup`：初始化 `.project-brain/` 并输出基于文件的工作流说明。
-- `project-brain doctor`：检查当前仓库是否已准备好进入基于文件的工作流。
+- `project-brain setup`：为当前仓库做 bootstrap，并指向 AI 安装文档。
+- `project-brain doctor`：检查当前仓库在 AI 安装前后是否处于正确状态。
 - `project-brain init`：为当前仓库创建最小可用的 `.project-brain/` 初始化结构。
+- `project-brain stdio`：通过 stdin/stdout 暴露 Project Brain 的工具接口。
 
 ## 核心数据模型
 
@@ -73,6 +76,7 @@ Project Brain 的主要操作以库函数形式暴露，适合由工具宿主封
 
 ## 集成指南
 
+- [用 AI 助手安装](./docs/install-with-ai.zh-CN.md)
 - [入门指南](./docs/guide-getting-started.zh-CN.md)
 - [OpenSpec 集成](./docs/guide-openspec-integration.zh-CN.md)
 
@@ -84,7 +88,7 @@ Project Brain 采用分层架构：
 - **core**: 领域逻辑、命令、查询和端口。
 - **infra-fs**: 存储和 Git 端口的本地文件系统实现。
 - **mode-embedded**: 仓库内文件工作流的集成辅助层。
-- **app**: 用于 setup、doctor、init 的 CLI 入口。
+- **app**: Bootstrap CLI 与 stdio 入口。
 
 ## 开发
 
