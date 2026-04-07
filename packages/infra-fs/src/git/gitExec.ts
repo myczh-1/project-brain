@@ -1,5 +1,12 @@
 import { execFileSync } from 'child_process';
 
+export class GitExecError extends Error {
+  constructor(message: string, readonly cause?: unknown) {
+    super(message);
+    this.name = 'GitExecError';
+  }
+}
+
 export function gitExec(args: string[], cwd?: string): string {
   try {
     const result = execFileSync('git', args, {
@@ -10,7 +17,7 @@ export function gitExec(args: string[], cwd?: string): string {
     return result.trim();
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Git command failed: ${message}`);
+    throw new GitExecError(`Git command failed (${args.join(' ')}): ${message}`, error);
   }
 }
 
@@ -22,7 +29,13 @@ export function isGitRepo(cwd?: string): boolean {
   try {
     gitExec(['rev-parse', '--git-dir'], cwd);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (
+      error instanceof GitExecError &&
+      (error.message.includes('not a git repository') || error.message.includes('this operation must be run in a work tree'))
+    ) {
+      return false;
+    }
+    throw error;
   }
 }

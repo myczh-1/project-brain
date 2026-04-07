@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ensureBrainDir, getBrainDir } from './brainDir.js';
 import { atomicWriteFile } from './fileOps.js';
+import { milestoneSchema, parseJsonText } from './validation.js';
 
 export interface Milestone {
   name: string;
@@ -30,12 +31,8 @@ export function readMilestones(cwd?: string): Milestone[] {
   if (!fs.existsSync(milestonesPath)) {
     return [];
   }
-  try {
-    const content = fs.readFileSync(milestonesPath, 'utf-8');
-    return JSON.parse(content);
-  } catch {
-    return [];
-  }
+  const content = fs.readFileSync(milestonesPath, 'utf-8');
+  return parseJsonText(content, milestonesPath, milestoneSchema.array(), 'milestones');
 }
 
 export function writeMilestones(milestones: Milestone[], cwd?: string): void {

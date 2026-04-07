@@ -33,6 +33,8 @@ Project Brain now works as a file-based protocol. Your AI assistant should:
 2. Read the current `.project-brain/` state before making changes.
 3. Write structured JSON or NDJSON records directly into `.project-brain/`.
 
+Project Brain validates those files at read time. If an assistant writes malformed JSON/NDJSON or the wrong shape, reads now fail loudly instead of silently pretending the data is empty.
+
 If you already use OpenSpec, pair it with Project Brain in the same repository and let the assistant use OpenSpec for planning while Project Brain records durable execution state.
 
 ## First Use — Initialize Project
@@ -72,6 +74,7 @@ You can inspect these files directly in the repository.
 
 - **Missing `.project-brain/`**: Run `project-brain setup`.
 - **Assistant writes invalid data**: Point it back to `protocol/` and ensure it reads before writing.
+- **Corrupt `.project-brain/` file**: Fix the malformed JSON/NDJSON instead of deleting the file; Project Brain treats corrupted data as an error.
 - **Concurrent updates**: Re-read the current JSON snapshot files before replacing them.
 
 ## Next Steps

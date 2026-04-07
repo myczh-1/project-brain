@@ -55,6 +55,11 @@ export type RuntimeQuery =
   | { type: 'get_state'; repo_path: string };
 
 export type RuntimeMessage = RuntimeCommand | RuntimeQuery;
+export type RuntimeResultFor<T extends RuntimeMessage> = T extends RuntimeCommand
+  ? RuntimeCommandResult
+  : T extends RuntimeQuery
+  ? RuntimeQueryResult
+  : never;
 
 export type RuntimeCommandResult =
   | ProjectInitOutput

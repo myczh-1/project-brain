@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ensureBrainDir, getBrainDir } from './brainDir.js';
 import { atomicWriteFile } from './fileOps.js';
+import { nextActionSchema, parseJsonText, parseNdjsonText } from './validation.js';
 
 export interface NextAction {
   id: string;
@@ -30,14 +31,13 @@ export function readNextActions(cwd?: string): NextAction[] {
 
   if (fs.existsSync(ndjsonPath)) {
     const content = fs.readFileSync(ndjsonPath, 'utf-8');
-    const lines = content.trim().split('\n').filter(line => line.trim());
-    return lines.map(line => JSON.parse(line) as NextAction);
+    return parseNdjsonText(content, ndjsonPath, nextActionSchema, 'next action');
   }
 
   const legacyPath = path.join(getBrainDir(cwd), LEGACY_NEXT_ACTIONS_FILE);
   if (fs.existsSync(legacyPath)) {
     const content = fs.readFileSync(legacyPath, 'utf-8');
-    return JSON.parse(content) as NextAction[];
+    return parseJsonText(content, legacyPath, nextActionSchema.array(), 'legacy next actions');
   }
 
   return [];

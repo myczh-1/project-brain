@@ -2,6 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ensureBrainDir, getBrainDir } from './brainDir.js';
 import { atomicWriteFile } from './fileOps.js';
+import { getRepoRootPath } from './repoRoot.js';
+import { manifestFileSchema, parseJsonText } from './validation.js';
 
 export interface Manifest {
   project_name: string;
@@ -15,7 +17,7 @@ export interface Manifest {
 }
 
 export function buildFallbackManifest(cwd?: string): Manifest {
-  const repoRoot = cwd ? path.resolve(cwd) : process.cwd();
+  const repoRoot = getRepoRootPath(cwd);
   const now = new Date().toISOString();
 
   return {
@@ -45,11 +47,7 @@ export function readManifest(cwd?: string): Manifest | null {
     return null;
   }
   const content = fs.readFileSync(manifestPath, 'utf-8');
-  const parsed = JSON.parse(content) as Partial<Manifest> & {
-    one_liner?: string;
-    goals?: string[];
-    tech_stack?: string[];
-  };
+  const parsed = parseJsonText(content, manifestPath, manifestFileSchema, 'manifest');
 
   return {
     project_name: parsed.project_name || 'Unknown Project',

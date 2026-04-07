@@ -27,6 +27,12 @@
 2. 让 AI 工具读取 `protocol/`。
 3. 让它直接读写 `.project-brain/`。
 
+写入这些文件时请保持严格结构:
+
+- `manifest.json`、`project-spec.json`、`changes/<id>.json`、`milestones.json` 必须是合法 JSON。
+- `decisions.ndjson`、`notes.ndjson`、`progress.ndjson` 必须是合法 NDJSON，每行一个 JSON 对象。
+- 如果文件损坏或结构不合法，Project Brain 现在会显式报错，而不是把坏数据静默当成空数据。
+
 ## CLI 命令
 
 - `project-brain setup`：初始化 `.project-brain/` 并输出基于文件的工作流说明。
@@ -86,7 +92,7 @@ Project Brain 采用分层架构：
 npm install
 npm run build
 npm test
-npm run dev
+npm run test:watch
 ```
 
 ## 开源协议

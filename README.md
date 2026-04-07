@@ -78,7 +78,7 @@ Project Brain follows a layered architecture:
 npm install
 npm run build
 npm test
-npm run dev
+npm run test:watch
 ```
 
 ## License

@@ -62,6 +62,7 @@ AI 助手需要访问 `protocol/` 文档（特别是 `files.md`、`semantics.md`
 ### 文件行为
 - **只增 (NDJSON)**：`decisions.ndjson`、`notes.ndjson`、`progress.ndjson`。每行一个 JSON 对象。切勿修改现有行。
 - **快照 (JSON)**：`manifest.json`、`project-spec.json`、`changes/<id>.json`、`milestones.json`。更新时替换整个文件。**写入前务必读取当前文件**，以避免覆盖并发更改。
+- **校验**：Project Brain 在读取这些 JSON 快照和 NDJSON 行时会执行结构校验。文件一旦损坏，会直接报错，方便助手修复源数据，而不是继续带着错误的“空状态”运行。
 
 ### 核心语义
 - **时间戳**：使用 ISO 8601 UTC 格式（例如 `2026-04-02T10:00:00.000Z`）。
@@ -71,6 +72,7 @@ AI 助手需要访问 `protocol/` 文档（特别是 `files.md`、`semantics.md`
 ## 最佳实践
 
 - **先读后写**：在执行写入之前，务必刷新您对 `.project-brain/` 状态的视图，尤其是在暂停后恢复工作时。
+- **以仓库根目录为准**：即使助手当前工作在子目录或子包里，也要把 `.project-brain/` 视为仓库根目录级别的状态。
 - **即时记录**：在决策和进展发生时立即捕获它们。不要等到会话结束。
 - **关注点分离**：使用 OpenSpec 进行规划和结构化拆解；使用 Project Brain 捕获开发实况和长期记忆。
 - **避免重复**：避免将 OpenSpec 设计文档的全部内容镜像到 Project Brain 中。使用 Project Brain 记录设计被采纳的 *事实*，以及随后产生的任何 *偏差* 或 *实现时的决策*。

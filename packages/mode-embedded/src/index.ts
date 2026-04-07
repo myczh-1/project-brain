@@ -37,10 +37,10 @@ export function createEmbeddedMode(
   return {
     handle: runtime.handle,
     async write(message) {
-      return runtime.handle(message) as Promise<RuntimeCommandResult>;
+      return runtime.handle(message);
     },
     async read(message) {
-      return runtime.handle(message) as Promise<RuntimeQueryResult>;
+      return runtime.handle(message);
     },
     service,
   };

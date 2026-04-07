@@ -62,6 +62,7 @@ The AI assistant requires access to the `protocol/` documentation (specifically 
 ### File Behavior
 - **Append-only (NDJSON)**: `decisions.ndjson`, `notes.ndjson`, `progress.ndjson`. One JSON object per line. Never modify existing lines.
 - **Snapshot (JSON)**: `manifest.json`, `project-spec.json`, `changes/<id>.json`, `milestones.json`. Replace the full file on update. **Always read the current file before writing** to avoid overwriting concurrent changes.
+- **Validation**: Project Brain validates both JSON snapshots and NDJSON lines when reading them. Corrupted files fail loudly so the assistant can repair the source data instead of continuing with a false empty state.
 
 ### Core Semantics
 - **Timestamps**: Use ISO 8601 UTC format (e.g., `2026-04-02T10:00:00.000Z`).
@@ -71,6 +72,7 @@ The AI assistant requires access to the `protocol/` documentation (specifically 
 ## Best Practices
 
 - **Read Before Write**: Always refresh your view of the `.project-brain/` state before performing a write, especially when resuming work after a pause.
+- **Write at Repo Scope**: Treat `.project-brain/` as repository-root state even when the assistant is currently operating from a nested package or subdirectory.
 - **Record Immediately**: Capture decisions and progress as they happen. Do not wait until the end of the session.
 - **Separation of Concerns**: Use OpenSpec for planning and structural breakdown; use Project Brain for capturing the reality of development and long-term memory.
 - **No Duplication**: Avoid mirroring the full content of OpenSpec design docs into Project Brain. Use Project Brain to record the *fact* that a design was adopted and any *deviations* or *implementation-time decisions* made later.

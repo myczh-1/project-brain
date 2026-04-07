@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanupTempRepoRoot, createTempRepoRoot } from '../test/testRepo.js';
+import { cleanupTempRepoRoot, createNestedDir, createTempRepoRoot } from '../test/testRepo.js';
 import { buildFallbackManifest, getManifestPath, readManifest, writeManifest } from './manifest.js';
 
 const repoRoots: string[] = [];
@@ -23,6 +23,16 @@ describe('manifest storage', () => {
     expect(manifest.summary).toBe('Project identity has not been explicitly initialized yet.');
     expect(manifest.repo_type).toBe('application');
     expect(manifest.primary_stack).toEqual([]);
+  });
+
+  it('uses the git repo root name even when called from a nested directory', () => {
+    const repoRoot = createTempRepoRoot('project-brain-manifest-');
+    repoRoots.push(repoRoot);
+    const nestedDir = createNestedDir(repoRoot, 'packages', 'infra-fs', 'src');
+
+    const manifest = buildFallbackManifest(nestedDir);
+
+    expect(manifest.project_name).toBe(path.basename(repoRoot));
   });
 
   it('reads legacy manifest fields into the current shape', () => {

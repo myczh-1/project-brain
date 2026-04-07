@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ensureBrainDir, getBrainDir } from './brainDir.js';
 import { atomicWriteFile } from './fileOps.js';
+import { parseJsonText, projectSpecSchema } from './validation.js';
 
 export interface ProjectSpec {
   product_goal: string;
@@ -26,7 +27,7 @@ export function readProjectSpec(cwd?: string): ProjectSpec | null {
   }
 
   const content = fs.readFileSync(projectSpecPath, 'utf-8');
-  return JSON.parse(content) as ProjectSpec;
+  return parseJsonText(content, projectSpecPath, projectSpecSchema, 'project spec');
 }
 
 export function writeProjectSpec(projectSpec: ProjectSpec, cwd?: string): string {
