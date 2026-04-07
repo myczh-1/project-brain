@@ -1,4 +1,5 @@
 import type { StoragePort } from '../ports/storage.js';
+import type { GitPort } from '../ports/git.js';
 import { createRuntimeService, type RuntimeService } from './service.js';
 import type {
   RuntimeCommand,
@@ -28,8 +29,9 @@ export interface Runtime {
 
 export function createRuntime(
   storage: StoragePort,
+  git: GitPort,
   defaultRepoPath?: string,
-  service: RuntimeService = createRuntimeService(storage)
+  service: RuntimeService = createRuntimeService(storage, git)
 ): Runtime {
   function handle(message: RuntimeCommand): Promise<RuntimeCommandResult>;
   function handle(message: RuntimeQuery): Promise<RuntimeQueryResult>;
@@ -55,22 +57,24 @@ export function createRuntime(
         return service.checkpointWork(withDefaultRepoPath(message.input, defaultRepoPath));
       case 'ingest_memory':
         return service.ingestMemory(withDefaultRepoPath(message.input, defaultRepoPath));
-      case 'get_manifest':
-        return service.getManifest(message.repo_path);
-      case 'get_project_spec':
-        return service.getProjectSpec(message.repo_path);
-      case 'get_change':
-        return service.getChange(message.change_id, message.repo_path);
-      case 'list_changes':
-        return service.listChanges(message.repo_path);
-      case 'list_decisions':
-        return service.listDecisions(message.repo_path);
-      case 'list_notes':
-        return service.listNotes(message.repo_path);
-      case 'list_progress':
-        return service.listProgress(message.repo_path);
-      case 'list_milestones':
-        return service.listMilestones(message.repo_path);
+      case 'finish_work':
+        return service.finishWork(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'get_dashboard':
+        return service.getDashboard(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'get_project_context':
+        return service.getProjectContext(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'get_change_context':
+        return service.getChangeContext(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'list_modules':
+        return service.listModules(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'get_module_context':
+        return service.getModuleContext(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'get_context_budget_plan':
+        return service.getContextBudgetPlan(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'get_recent_activity':
+        return service.getRecentActivity(withDefaultRepoPath(message.input, defaultRepoPath));
+      case 'analyze':
+        return service.analyze(withDefaultRepoPath(message.input, defaultRepoPath));
       case 'get_state':
         return service.getState(message.repo_path);
       default:

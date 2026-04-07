@@ -1,5 +1,5 @@
 import { createRuntime, createRuntimeService } from '@myczh/project-brain/core';
-import { createFsStorage } from '@myczh/project-brain/infra-fs';
+import { createFsGit, createFsStorage } from '@myczh/project-brain/infra-fs';
 import type {
   RuntimeCommand,
   RuntimeCommandResult,
@@ -30,9 +30,10 @@ export interface EmbeddedMode {
 export function createEmbeddedMode(
   defaultRepoPath?: string,
   storage = createFsStorage(),
-  service: RuntimeService = createRuntimeService(storage)
+  git = createFsGit(),
+  service: RuntimeService = createRuntimeService(storage, git)
 ): EmbeddedMode {
-  const runtime = createRuntime(storage, defaultRepoPath, service);
+  const runtime = createRuntime(storage, git, defaultRepoPath, service);
 
   return {
     handle: runtime.handle,

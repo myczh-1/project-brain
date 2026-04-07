@@ -1,13 +1,4 @@
 import type {
-  ChangeSpec,
-  Decision,
-  Manifest,
-  Milestone,
-  Note,
-  ProgressEntry,
-  ProjectSpec,
-} from '../ports/storage.js';
-import type {
   CaptureNoteInput,
   CaptureNoteOutput,
   CheckpointWorkInput,
@@ -29,6 +20,26 @@ import type {
   UpdateChangeInput,
   UpdateChangeOutput,
 } from '../commands/index.js';
+import type {
+  DashboardToolInput as QueryDashboardToolInput,
+  DashboardToolOutput as QueryDashboardToolOutput,
+  ProjectContextInput as QueryProjectContextInput,
+  ProjectContextOutput as QueryProjectContextOutput,
+  ChangeContextInput as QueryChangeContextInput,
+  ChangeContextOutput as QueryChangeContextOutput,
+  ListModulesInput as QueryListModulesInput,
+  ListModulesOutput as QueryListModulesOutput,
+  ModuleContextInput as QueryModuleContextInput,
+  ModuleContextOutput as QueryModuleContextOutput,
+  ContextBudgetPlanInput as QueryContextBudgetPlanInput,
+  ContextBudgetPlanOutput as QueryContextBudgetPlanOutput,
+  RecentActivityInput as QueryRecentActivityInput,
+  RecentActivityOutput as QueryRecentActivityOutput,
+  BrainAnalyzeInput as QueryBrainAnalyzeInput,
+  BrainAnalyzeOutput as QueryBrainAnalyzeOutput,
+  FinishWorkInput as QueryFinishWorkInput,
+  FinishWorkOutput as QueryFinishWorkOutput,
+} from '../queries/index.js';
 import type { RuntimeStateSnapshot } from './service.js';
 
 export type RuntimeCommand =
@@ -41,17 +52,18 @@ export type RuntimeCommand =
   | { type: 'record_progress'; input: RecordProgressInput }
   | { type: 'start_work'; input: StartWorkInput }
   | { type: 'checkpoint_work'; input: CheckpointWorkInput }
-  | { type: 'ingest_memory'; input: IngestMemoryInput };
+  | { type: 'ingest_memory'; input: IngestMemoryInput }
+  | { type: 'finish_work'; input: QueryFinishWorkInput };
 
 export type RuntimeQuery =
-  | { type: 'get_manifest'; repo_path: string }
-  | { type: 'get_project_spec'; repo_path: string }
-  | { type: 'get_change'; change_id: string; repo_path: string }
-  | { type: 'list_changes'; repo_path: string }
-  | { type: 'list_decisions'; repo_path: string }
-  | { type: 'list_notes'; repo_path: string }
-  | { type: 'list_progress'; repo_path: string }
-  | { type: 'list_milestones'; repo_path: string }
+  | { type: 'get_dashboard'; input: QueryDashboardToolInput }
+  | { type: 'get_project_context'; input: QueryProjectContextInput }
+  | { type: 'get_change_context'; input: QueryChangeContextInput }
+  | { type: 'list_modules'; input: QueryListModulesInput }
+  | { type: 'get_module_context'; input: QueryModuleContextInput }
+  | { type: 'get_context_budget_plan'; input: QueryContextBudgetPlanInput }
+  | { type: 'get_recent_activity'; input: QueryRecentActivityInput }
+  | { type: 'analyze'; input: QueryBrainAnalyzeInput }
   | { type: 'get_state'; repo_path: string };
 
 export type RuntimeMessage = RuntimeCommand | RuntimeQuery;
@@ -71,18 +83,19 @@ export type RuntimeCommandResult =
   | RecordProgressOutput
   | StartWorkOutput
   | CheckpointWorkOutput
-  | IngestMemoryOutput;
+  | IngestMemoryOutput
+  | QueryFinishWorkOutput;
 
 export type RuntimeQueryResult =
-  | Manifest
-  | ProjectSpec
-  | ChangeSpec
-  | Decision[]
-  | Note[]
-  | ProgressEntry[]
-  | Milestone[]
-  | ChangeSpec[]
+  | QueryDashboardToolOutput
+  | QueryProjectContextOutput
+  | QueryChangeContextOutput
+  | QueryListModulesOutput
+  | QueryModuleContextOutput
+  | QueryContextBudgetPlanOutput
+  | QueryRecentActivityOutput
+  | QueryBrainAnalyzeOutput
   | RuntimeStateSnapshot
-  | null;
+  ;
 
 export type RuntimeMessageResult = RuntimeCommandResult | RuntimeQueryResult;
