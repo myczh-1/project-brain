@@ -18,7 +18,14 @@
 
 ## 快速开始
 
-推荐安装路径：让您的 AI 助手直接按照 [docs/install-with-ai.zh-CN.md](./docs/install-with-ai.zh-CN.md) 完成接入。
+把下面这段话复制给你的 AI 助手，让它完成安装：
+
+```text
+Please install Project Brain in this repository by following docs/install.md.
+Use project-level configuration when possible.
+Configure Project Brain through `project-brain stdio`.
+Explain which files you plan to modify before editing them.
+```
 
 详细工作流说明请参阅 [docs/guide-openspec-integration.zh-CN.md](./docs/guide-openspec-integration.zh-CN.md)。简而言之，AI 助手读取 `protocol/` 中的定义，并直接向 `.project-brain/` 写入结构化数据。
 
@@ -26,7 +33,7 @@
    ```bash
    npx -y @myczh/project-brain setup
    ```
-2. 让 AI 助手按照 `docs/install-with-ai.zh-CN.md` 完成接入。
+2. 让 AI 助手按照 `docs/install.md` 完成接入。
 3. 让助手把目标工具接到 `project-brain stdio`，并更新对应的 prompt / 配置。
 
 写入这些文件时请保持严格结构:
@@ -76,7 +83,7 @@ Project Brain 的主要操作以库函数形式暴露，适合由工具宿主封
 
 ## 集成指南
 
-- [用 AI 助手安装](./docs/install-with-ai.zh-CN.md)
+- [Install](./docs/install.md)
 - [入门指南](./docs/guide-getting-started.zh-CN.md)
 - [OpenSpec 集成](./docs/guide-openspec-integration.zh-CN.md)
 

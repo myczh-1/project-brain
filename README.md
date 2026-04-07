@@ -10,7 +10,14 @@ Durable project memory for AI-assisted development.
 
 ## Quick Start
 
-Recommended installation path: ask your AI assistant to follow [docs/install-with-ai.md](./docs/install-with-ai.md).
+Copy the text below into your AI assistant and let it complete the installation:
+
+```text
+Please install Project Brain in this repository by following docs/install.md.
+Use project-level configuration when possible.
+Configure Project Brain through `project-brain stdio`.
+Explain which files you plan to modify before editing them.
+```
 
 For detailed workflow instructions, see [docs/guide-openspec-integration.md](./docs/guide-openspec-integration.md). In brief, the AI assistant reads the definitions in `protocol/` and writes structured data to `.project-brain/` directly.
 
@@ -18,7 +25,7 @@ For detailed workflow instructions, see [docs/guide-openspec-integration.md](./d
    ```bash
    npx -y @myczh/project-brain setup
    ```
-2. Ask your AI assistant to follow `docs/install-with-ai.md`.
+2. Ask your AI assistant to follow `docs/install.md`.
 3. Let the assistant wire your tool to `project-brain stdio` and update the appropriate prompt/config files.
 
 ## CLI Commands
@@ -62,7 +69,7 @@ Project Brain's main operations are exposed as library functions for tools or ho
 
 ## Integration Guides
 
-- [Install With AI](./docs/install-with-ai.md)
+- [Install](./docs/install.md)
 - [Getting Started](./docs/guide-getting-started.md)
 - [OpenSpec Integration](./docs/guide-openspec-integration.md)
 

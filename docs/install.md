@@ -1,20 +1,8 @@
-# Install With AI
+# Install Project Brain With Your AI Assistant
 
-Project Brain is designed to be installed by your coding assistant, not by hand-editing a long list of config files.
+Use your coding assistant as the installer.
 
-Recommended flow:
-
-1. Open your AI coding tool in this repository.
-2. Ask it to follow this document.
-3. Let it inspect the local environment, propose the right configuration changes, and apply them with your approval.
-
-Suggested prompt:
-
-```text
-Please install Project Brain in this repository by following docs/install-with-ai.md.
-Detect whether this environment is Codex, Claude, or OpenCode, configure Project Brain through `project-brain stdio`, and update the appropriate project-level or global prompt/config files.
-Prefer project-level configuration when possible. Explain each file you plan to modify before editing it.
-```
+Give it this repository, point it at this file, and let it handle the environment-specific setup.
 
 ## What The Assistant Should Do
 
@@ -52,8 +40,7 @@ Prefer project-level configuration when possible. Explain each file you plan to 
    - The assistant should wire this command into the target tool's local tool/MCP/agent configuration in the format expected by that tool.
 
 6. Add or update the prompt/instructions.
-   - The assistant should add a short Project Brain integration prompt to the target tool's configuration.
-   - Recommended prompt text:
+   - Add a short Project Brain integration prompt to the target tool's configuration:
 
    ```text
    Use Project Brain as the durable memory layer for this repository.
@@ -77,7 +64,7 @@ Prefer project-level configuration when possible. Explain each file you plan to 
 
 ## Minimal Verification
 
-After installation, the assistant should verify:
+After installation, verify:
 
 1. The repository has a valid `.project-brain/` directory.
 2. The target AI tool config points to `project-brain stdio`.
@@ -92,6 +79,6 @@ printf '%s\n' '{"id":"smoke-1","message":{"type":"get_state","repo_path":"'"$(pw
 
 If the assistant cannot safely edit the target tool's config automatically:
 
-- it should print the exact config snippet needed,
+- print the exact config snippet needed,
 - explain where that snippet should be placed,
 - and avoid making speculative edits.

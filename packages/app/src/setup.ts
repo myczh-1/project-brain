@@ -92,8 +92,7 @@ async function ensureBrainInitialized(facts: RepoFacts): Promise<void> {
 function printLightweightInstructions(facts: RepoFacts): void {
   console.error('');
   console.error('Bootstrap next steps');
-  console.error('- Open `docs/install-with-ai.md` and ask your AI assistant to complete the installation for this repository.');
-  console.error('- Recommended prompt: "Please follow docs/install-with-ai.md to install Project Brain in this repository."');
+  console.error('- Open `docs/install.md` and ask your AI assistant to complete the installation for this repository.');
   console.error('- Once configured, your AI tool should connect through `project-brain stdio` and follow `protocol/` when updating `.project-brain/`.');
   if (facts.hasOpenSpec) {
     console.error('- OpenSpec detected: the installer should preserve the OpenSpec + Project Brain workflow.');
@@ -139,7 +138,7 @@ export async function runDoctor(): Promise<void> {
   if (!facts.hasBrainDir) {
     console.error('- Run `project-brain setup` to initialize Project Brain for this repository.');
   } else {
-    console.error('- Ask your AI assistant to follow `docs/install-with-ai.md` for the final tool integration.');
+    console.error('- Ask your AI assistant to follow `docs/install.md` for the final tool integration.');
   }
 }
 
