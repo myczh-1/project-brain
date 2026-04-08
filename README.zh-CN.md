@@ -22,6 +22,7 @@
 
 ```text
 Please install Project Brain in this repository by following https://github.com/myczh-1/project-brain/docs/install.md.
+Use Chinese when communicating with the user.
 Configure Project Brain through `project-brain stdio`.
 Do not edit `.project-brain/` files directly.
 Explain which files you plan to modify before editing them.
