@@ -1,4 +1,4 @@
-import { createRuntime, type RuntimeMessage } from '@myczh/project-brain/core';
+import { createRuntime, parseRuntimeMessage, type RuntimeMessage } from '@myczh/project-brain/core';
 import { createFsGit, createFsStorage } from '@myczh/project-brain/infra-fs';
 import * as readline from 'readline';
 
@@ -27,6 +27,10 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function validateRuntimeMessage(value: unknown): RuntimeMessage {
+  return parseRuntimeMessage(value);
+}
+
 function validateRequest(value: unknown): StdioRequest {
   if (!isObject(value)) {
     throw new Error('Request must be a JSON object.');
@@ -36,7 +40,7 @@ function validateRequest(value: unknown): StdioRequest {
   }
   return {
     id: (value.id as string | number | null | undefined) ?? null,
-    message: value.message as RuntimeMessage,
+    message: validateRuntimeMessage(value.message),
   };
 }
 

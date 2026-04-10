@@ -31,6 +31,64 @@ describe('stdio', () => {
     });
   });
 
+  it('rejects malformed runtime messages before dispatch', async () => {
+    const handle = vi.fn();
+    const response = await handleStdioLine(
+      JSON.stringify({
+        id: 'req-bad',
+        message: { type: 'list_modules', input: 'not-an-object' },
+      }),
+      handle
+    );
+
+    expect(handle).not.toHaveBeenCalled();
+    expect(response).toMatchObject({
+      id: null,
+      ok: false,
+      error: {
+        message: expect.stringContaining('Invalid input'),
+      },
+    });
+  });
+
+  it('rejects unsupported runtime message types before dispatch', async () => {
+    const handle = vi.fn();
+    const response = await handleStdioLine(
+      JSON.stringify({
+        id: 'req-unknown',
+        message: { type: 'totally_unknown', input: {} },
+      }),
+      handle
+    );
+
+    expect(handle).not.toHaveBeenCalled();
+    expect(response).toMatchObject({
+      id: null,
+      ok: false,
+      error: {
+        message: expect.stringContaining('Invalid input'),
+      },
+    });
+  });
+
+  it('accepts get_state without repo_path and normalizes it through the schema', async () => {
+    const handle = vi.fn().mockResolvedValue({ state: 'ok' });
+    const response = await handleStdioLine(
+      JSON.stringify({
+        id: 'req-state',
+        message: { type: 'get_state' },
+      }),
+      handle
+    );
+
+    expect(handle).toHaveBeenCalledWith({ type: 'get_state', repo_path: '' });
+    expect(response).toEqual({
+      id: 'req-state',
+      ok: true,
+      result: { state: 'ok' },
+    });
+  });
+
   it('returns a structured error when the runtime throws', async () => {
     const response = await handleStdioLine(
       JSON.stringify({
