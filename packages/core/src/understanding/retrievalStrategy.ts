@@ -2,12 +2,6 @@ import type { Decision, Note, ProgressEntry } from '../ports/storage.js';
 
 export type RetrievalEntrypoint = 'standard' | 'investigation';
 
-const LEGACY_TERM_ALIASES: Record<string, string[]> = {
-  session: ['session ticket', 'refresh cookie', 'legacy auth'],
-  auth: ['legacy auth', 'old route matcher', 'token refresh'],
-  route: ['old route matcher', 'legacy route'],
-};
-
 function normalizeTerms(input: string): string[] {
   return input
     .toLowerCase()
@@ -18,14 +12,7 @@ function normalizeTerms(input: string): string[] {
 
 export function expandRetrievalTerms(task: string | undefined, hints: string[]): string[] {
   const seed = [task || '', ...hints].join(' ');
-  const terms = normalizeTerms(seed);
-  const expanded = new Set<string>(terms);
-  for (const term of terms) {
-    const aliases = LEGACY_TERM_ALIASES[term];
-    if (!aliases) continue;
-    for (const alias of aliases) expanded.add(alias);
-  }
-  return Array.from(expanded).slice(0, 20);
+  return Array.from(new Set(normalizeTerms(seed))).slice(0, 20);
 }
 
 export function textMatchesTerms(text: string, terms: string[]): boolean {

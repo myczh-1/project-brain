@@ -8,10 +8,13 @@ import {
 } from './retrievalStrategy.js';
 
 describe('retrievalStrategy', () => {
-  it('expands legacy aliases for investigation hints', () => {
+  it('collects normalized unique retrieval terms without legacy aliases', () => {
     const terms = expandRetrievalTerms('fix auth session bug', ['refresh flow']);
-    expect(terms).toContain('legacy auth');
-    expect(terms).toContain('refresh cookie');
+    expect(terms).toContain('auth');
+    expect(terms).toContain('session');
+    expect(terms).toContain('refresh');
+    expect(terms).not.toContain('legacy auth');
+    expect(terms).not.toContain('refresh cookie');
   });
 
   it('matches text against expanded terms', () => {
@@ -33,9 +36,9 @@ describe('retrievalStrategy', () => {
 
   it('builds bounded evidence chain', () => {
     const chain = buildHistoryEvidenceChain(
-      [{ id: 'd1', title: 'T', decision: 'D', rationale: 'R', alternatives_considered: [], scope: 'project', created_at: '' }],
-      [{ id: 'n1', note: 'N', tags: [], time: '' }],
-      [{ id: 'p1', summary: 'P', confidence: 'mid', date: '' }]
+      [{ id: 'd1', title: 'T', decision: 'D', rationale: 'R', alternatives_considered: [], scope: 'project', module_ids: [], created_at: '' }],
+      [{ id: 'n1', note: 'N', tags: [], time: '', module_ids: [] }],
+      [{ id: 'p1', summary: 'P', confidence: 'mid', date: '', module_ids: [] }]
     );
     expect(chain.length).toBe(3);
     expect(chain[0].source).toBe('decision');
