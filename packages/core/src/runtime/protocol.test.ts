@@ -3,9 +3,9 @@ import { parseRuntimeMessage } from './protocol.js';
 
 describe('parseRuntimeMessage', () => {
   it('accepts known runtime messages with object input', () => {
-    expect(parseRuntimeMessage({ type: 'list_modules', input: { repo_path: '/repo', limit: 5 } })).toEqual({
-      type: 'list_modules',
-      input: { repo_path: '/repo', limit: 5 },
+    expect(parseRuntimeMessage({ type: 'analyze', input: { repo_path: '/repo', depth: 'quick' } })).toEqual({
+      type: 'analyze',
+      input: { repo_path: '/repo', depth: 'quick' },
     });
   });
 
@@ -29,8 +29,8 @@ describe('parseRuntimeMessage', () => {
 
   it('rejects extra fields on runtime inputs instead of treating them as valid', () => {
     expect(() => parseRuntimeMessage({
-      type: 'list_modules',
-      input: { repo_path: '/repo', limit: 5, unexpected: true },
+      type: 'analyze',
+      input: { repo_path: '/repo', depth: 'quick', unexpected: true },
     })).toThrow(/unrecognized key/i);
   });
 });

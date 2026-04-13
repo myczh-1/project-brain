@@ -3,23 +3,23 @@ import { handleStdioLine } from './stdio.js';
 
 describe('stdio', () => {
   it('routes a JSON request and returns a success envelope', async () => {
-    const handle = vi.fn().mockResolvedValue({ modules: [{ id: 'auth' }] });
+    const handle = vi.fn().mockResolvedValue({ change_contract: { id: 'c1' } });
     const response = await handleStdioLine(
       JSON.stringify({
         id: 'req-1',
-        message: { type: 'list_modules', input: { repo_path: '/repo', limit: 3 } },
+        message: { type: 'get_change_context', input: { repo_path: '/repo', change_id: 'c1' } },
       }),
       handle
     );
 
     expect(handle).toHaveBeenCalledWith({
-      type: 'list_modules',
-      input: { repo_path: '/repo', limit: 3 },
+      type: 'get_change_context',
+      input: { repo_path: '/repo', change_id: 'c1' },
     });
     expect(response).toEqual({
       id: 'req-1',
       ok: true,
-      result: { modules: [{ id: 'auth' }] },
+      result: { change_contract: { id: 'c1' } },
     });
   });
 
@@ -36,7 +36,7 @@ describe('stdio', () => {
     const response = await handleStdioLine(
       JSON.stringify({
         id: 'req-bad',
-        message: { type: 'list_modules', input: 'not-an-object' },
+        message: { type: 'analyze', input: 'not-an-object' },
       }),
       handle
     );

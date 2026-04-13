@@ -52,28 +52,8 @@ export function createRuntime(
         return service.captureNote(withRequiredRepoPath(message.input, defaultRepoPath));
       case 'record_progress':
         return service.recordProgress(withRequiredRepoPath(message.input, defaultRepoPath));
-      case 'start_work':
-        return service.startWork(withRequiredRepoPath(message.input, defaultRepoPath));
-      case 'checkpoint_work':
-        return service.checkpointWork(withRequiredRepoPath(message.input, defaultRepoPath));
-      case 'ingest_memory':
-        return service.ingestMemory(withRequiredRepoPath(message.input, defaultRepoPath));
-      case 'finish_work':
-        return service.finishWork(withRequiredRepoPath(message.input, defaultRepoPath));
-      case 'get_dashboard':
-        return service.getDashboard(withConfiguredRepoPath(message.input, defaultRepoPath));
-      case 'get_project_context':
-        return service.getProjectContext(withConfiguredRepoPath(message.input, defaultRepoPath));
       case 'get_change_context':
         return service.getChangeContext(withConfiguredRepoPath(message.input, defaultRepoPath));
-      case 'list_modules':
-        return service.listModules(withConfiguredRepoPath(message.input, defaultRepoPath));
-      case 'get_module_context':
-        return service.getModuleContext(withConfiguredRepoPath(message.input, defaultRepoPath));
-      case 'get_context_budget_plan':
-        return service.getContextBudgetPlan(withConfiguredRepoPath(message.input, defaultRepoPath));
-      case 'get_recent_activity':
-        return service.getRecentActivity(withConfiguredRepoPath(message.input, defaultRepoPath));
       case 'analyze':
         return service.analyze(withConfiguredRepoPath(message.input, defaultRepoPath));
       case 'get_state':
